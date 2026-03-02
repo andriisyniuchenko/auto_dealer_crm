@@ -1,1 +1,21 @@
-/venv/
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual env
+venv/
+.env
+
+# IDE
+.idea/
+.vscode/
+
+# Mac
+.DS_Store
+
+# Alembic
+alembic/versions/*.pyc
+
+# Logs
+*.log
