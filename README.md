@@ -38,8 +38,7 @@ The system is designed to manage:
 -   **General Manager** --- full system access\
 -   **Manager** --- lead assignment and analytics\
 -   **Finance Manager** --- deals and credit data\
--   **Salesperson** --- access to own leads only\
--   **Online Salesperson** --- shared leads (50/50 model)
+-   **Salesperson** --- access to own individual leads and share leads (50/50)\
 
 ------------------------------------------------------------------------
 
