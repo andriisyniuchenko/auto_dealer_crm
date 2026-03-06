@@ -87,3 +87,27 @@ def assign_salesperson_to_lead(db: Session, lead_id: int, salesperson_id: int):
     db.commit()
 
     return {"message": "Salesperson assigned successfully"}
+
+
+def get_lead_by_id(db: Session, lead_id: int, current_user: User):
+    lead = db.query(Lead).filter(Lead.id == lead_id).first()
+
+    if not lead:
+        raise HTTPException(status_code=404, detail="Lead not found")
+
+    if current_user.role.value in ["manager", "general_manager"]:
+        return lead
+
+    lead_link = (
+        db.query(LeadSalesperson)
+        .filter(
+            LeadSalesperson.lead_id == lead_id,
+            LeadSalesperson.user_id == current_user.id,
+        )
+        .first()
+    )
+
+    if not lead_link:
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+
+    return lead
