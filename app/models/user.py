@@ -2,6 +2,7 @@ from enum import Enum
 from datetime import datetime
 
 from sqlalchemy import Boolean, Column, DateTime, Enum as SAEnum, Integer, String
+from sqlalchemy.orm import relationship
 
 from app.db.session import Base
 
@@ -26,3 +27,9 @@ class User(Base):
     is_active = Column(Boolean, nullable=False, default=True)
 
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+
+    leads = relationship(
+        "Lead",
+        secondary="lead_salespeople",
+        back_populates="salespeople",
+    )
