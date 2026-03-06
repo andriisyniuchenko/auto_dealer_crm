@@ -23,3 +23,7 @@ class LeadResponse(LeadBase):
 
     class Config:
         from_attributes = True
+
+
+class LeadAssign(BaseModel):
+    salesperson_id: int

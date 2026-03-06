@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
-from app.schemas.lead import LeadCreate, LeadResponse
-from app.services.lead_service import create_lead, get_leads
+from app.schemas.lead import LeadCreate, LeadResponse, LeadAssign
+from app.services.lead_service import create_lead, get_leads, assign_salesperson_to_lead
 from app.api.deps import require_roles
 from app.models.user import User
 
@@ -25,3 +25,13 @@ def read_leads(
     current_user: User = Depends(require_roles("manager", "general_manager", "salesperson")),
 ):
     return get_leads(db, current_user)
+
+
+@router.post("/{lead_id}/assign")
+def assign_salesperson(
+    lead_id: int,
+    data: LeadAssign,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles("manager", "general_manager")),
+):
+    return assign_salesperson_to_lead(db, lead_id, data.salesperson_id)
