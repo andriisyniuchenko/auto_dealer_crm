@@ -1,6 +1,8 @@
 from datetime import datetime
 
 from sqlalchemy import Column, DateTime, Integer, String, Text
+from sqlalchemy.orm import relationship
+
 from app.db.session import Base
 
 
@@ -26,3 +28,9 @@ class Lead(Base):
     status = Column(String, nullable=False, default="active")
 
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+
+    salespeople = relationship(
+        "User",
+        secondary="lead_salespeople",
+        back_populates="leads",
+    )
