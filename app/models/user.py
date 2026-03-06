@@ -5,7 +5,7 @@ from sqlalchemy import Boolean, Column, DateTime, Enum as SAEnum, Integer, Strin
 from sqlalchemy.orm import relationship
 
 from app.db.session import Base
-
+from app.models.lead_salesperson import LeadSalesperson
 
 class UserRole(str, Enum):
     general_manager = "general_manager"
@@ -30,6 +30,6 @@ class User(Base):
 
     leads = relationship(
         "Lead",
-        secondary="lead_salespeople",
+        secondary=LeadSalesperson.__table__,
         back_populates="salespeople",
     )

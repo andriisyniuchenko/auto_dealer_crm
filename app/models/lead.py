@@ -4,6 +4,7 @@ from sqlalchemy import Column, DateTime, Integer, String, Text
 from sqlalchemy.orm import relationship
 
 from app.db.session import Base
+from app.models.lead_salesperson import LeadSalesperson
 
 
 class Lead(Base):
@@ -31,6 +32,6 @@ class Lead(Base):
 
     salespeople = relationship(
         "User",
-        secondary="lead_salespeople",
+        secondary=LeadSalesperson.__table__,
         back_populates="leads",
     )
