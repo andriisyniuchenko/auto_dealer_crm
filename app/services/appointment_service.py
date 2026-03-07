@@ -1,4 +1,5 @@
-from datetime import datetime
+from datetime import datetime, time
+from zoneinfo import ZoneInfo
 
 from sqlalchemy.orm import Session
 
@@ -63,3 +64,40 @@ def update_appointment(
     db.refresh(appointment)
 
     return appointment
+
+
+
+from app.models.lead_salesperson import LeadSalesperson
+
+
+def get_today_appointments(db: Session, current_user: User):
+    tz = ZoneInfo("America/Los_Angeles")
+
+    now = datetime.now(tz)
+    today = now.date()
+
+    start = datetime.combine(today, time.min, tz)
+    end = datetime.combine(today, time.max, tz)
+
+    if current_user.role.value in ["manager", "general_manager"]:
+        return (
+            db.query(Appointment)
+            .filter(
+                Appointment.appointment_at >= start,
+                Appointment.appointment_at <= end,
+            )
+            .order_by(Appointment.appointment_at.asc())
+            .all()
+        )
+
+    return (
+        db.query(Appointment)
+        .join(LeadSalesperson, Appointment.lead_id == LeadSalesperson.lead_id)
+        .filter(
+            LeadSalesperson.user_id == current_user.id,
+            Appointment.appointment_at >= start,
+            Appointment.appointment_at <= end,
+        )
+        .order_by(Appointment.appointment_at.asc())
+        .all()
+    )
