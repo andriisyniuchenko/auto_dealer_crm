@@ -21,3 +21,10 @@ class AppointmentStatus(str, Enum):
     confirmed = "confirmed"
     cancelled = "cancelled"
     no_show = "no_show"
+
+
+class DealStatus(str, Enum):
+    open = "open"
+    sold = "sold"
+    lost = "lost"
+    cancelled = "cancelled"

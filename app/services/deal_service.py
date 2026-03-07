@@ -5,7 +5,10 @@ from app.models.deal import Deal
 from app.models.lead import Lead
 from app.models.lead_salesperson import LeadSalesperson
 from app.models.user import User
-from app.schemas.deal import DealCreate
+from app.schemas.deal import DealCreate, DealClose
+
+from datetime import datetime
+
 
 
 def create_deal(db: Session, deal: DealCreate, current_user: User):
@@ -40,3 +43,35 @@ def create_deal(db: Session, deal: DealCreate, current_user: User):
     db.refresh(new_deal)
 
     return new_deal
+
+
+def close_deal(db: Session, deal_id: int, deal_data: DealClose, current_user: User):
+    deal = db.query(Deal).filter(Deal.id == deal_id).first()
+    if not deal:
+        raise HTTPException(status_code=404, detail="Deal not found")
+
+    if current_user.role.value not in ["manager", "general_manager"]:
+        link = (
+            db.query(LeadSalesperson)
+            .filter(
+                LeadSalesperson.lead_id == deal.lead_id,
+                LeadSalesperson.user_id == current_user.id,
+            )
+            .first()
+        )
+        if not link:
+            raise HTTPException(status_code=403, detail="Not enough permissions")
+
+    if deal.status != "open":
+        raise HTTPException(status_code=400, detail="Deal is already closed")
+
+    if deal_data.status.value not in ["sold", "lost", "cancelled"]:
+        raise HTTPException(status_code=400, detail="Invalid close status")
+
+    deal.status = deal_data.status.value
+    deal.closed_at = datetime.utcnow()
+
+    db.commit()
+    db.refresh(deal)
+
+    return deal

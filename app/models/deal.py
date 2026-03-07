@@ -4,6 +4,8 @@ from sqlalchemy.orm import relationship
 
 from app.db.session import Base
 
+from app.models.enums import DealStatus
+
 
 class Deal(Base):
     __tablename__ = "deals"
@@ -15,7 +17,7 @@ class Deal(Base):
     vehicle = Column(String, nullable=False)
     price = Column(Integer, nullable=False)
 
-    status = Column(String, default="open")
+    status = Column(String, nullable=False, default=DealStatus.open.value)
 
     created_at = Column(DateTime, default=datetime.utcnow)
     closed_at = Column(DateTime, nullable=True)
