@@ -5,6 +5,7 @@ from sqlalchemy.orm import relationship
 
 from app.db.session import Base
 from app.models.lead_salesperson import LeadSalesperson
+from app.models.enums import LeadStatus
 
 
 class Lead(Base):
@@ -26,7 +27,7 @@ class Lead(Base):
     interest = Column(Text, nullable=True)
     notes = Column(Text, nullable=True)
 
-    status = Column(String, nullable=False, default="active")
+    status = Column(String, nullable=False, default=LeadStatus.active.value)
 
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
 

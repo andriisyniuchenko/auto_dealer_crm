@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from app.models.enums import LeadStatus
 
 
 class LeadBase(BaseModel):
@@ -11,7 +12,7 @@ class LeadBase(BaseModel):
     source: str | None = None
     interest: str | None = None
     notes: str | None = None
-    status: str = "active"
+    status: LeadStatus = LeadStatus.active
 
 
 class LeadCreate(LeadBase):
@@ -39,4 +40,4 @@ class LeadUpdate(BaseModel):
     source: str | None = None
     interest: str | None = None
     notes: str | None = None
-    status: str | None = None
+    status: LeadStatus | None = None
