@@ -44,5 +44,5 @@ class LeadUpdate(BaseModel):
     status: LeadStatus | None = None
 
 class StaleLeadResponse(LeadResponse):
-    last_contacted_at: datetime | None = None
+    last_contacted_at: datetime | str
     days_since_contact: int | str

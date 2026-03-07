@@ -151,7 +151,9 @@ def get_stale_leads(db: Session, current_user: User):
     for lead in leads:
         if lead.last_contacted_at is None:
             days_since_contact = "Never contacted"
+            last_contacted = "Never contacted"
         else:
+            last_contacted = lead.last_contacted_at
             delta = datetime.now(UTC).date() - lead.last_contacted_at.date()
             days_since_contact = delta.days
 
@@ -167,7 +169,7 @@ def get_stale_leads(db: Session, current_user: User):
             "interest": lead.interest,
             "notes": lead.notes,
             "status": lead.status,
-            "last_contacted_at": lead.last_contacted_at,
+            "last_contacted_at": last_contacted,
             "days_since_contact": days_since_contact,
         })
 
