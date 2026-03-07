@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 
 from app.models.lead import Lead
 from app.models.lead_salesperson import LeadSalesperson
-from app.schemas.lead import LeadCreate
+from app.schemas.lead import LeadCreate, LeadUpdate
 from app.models.user import User
 from fastapi import HTTPException
 
@@ -110,5 +110,19 @@ def get_lead_by_id(db: Session, lead_id: int, current_user: User):
 
     if not lead_link:
         raise HTTPException(status_code=403, detail="Not enough permissions")
+
+    return lead
+
+
+def update_lead(db: Session, lead_id: int, lead_data: LeadUpdate, current_user: User):
+    lead = get_lead_by_id(db, lead_id, current_user)
+
+    update_data = lead_data.model_dump(exclude_unset=True)
+
+    for field, value in update_data.items():
+        setattr(lead, field, value)
+
+    db.commit()
+    db.refresh(lead)
 
     return lead

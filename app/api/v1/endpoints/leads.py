@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
-from app.schemas.lead import LeadCreate, LeadResponse, LeadAssign
-from app.services.lead_service import create_lead, get_leads, assign_salesperson_to_lead, get_lead_by_id
+from app.schemas.lead import LeadCreate, LeadResponse, LeadAssign, LeadUpdate
+from app.services.lead_service import create_lead, get_leads, assign_salesperson_to_lead, get_lead_by_id, update_lead
 from app.api.deps import require_roles
 from app.models.user import User
 
@@ -44,3 +44,13 @@ def read_lead_by_id(
     current_user: User = Depends(require_roles("manager", "general_manager", "salesperson")),
 ):
     return get_lead_by_id(db, lead_id, current_user)
+
+
+@router.patch("/{lead_id}", response_model=LeadResponse)
+def update_existing_lead(
+    lead_id: int,
+    lead_data: LeadUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles("manager", "general_manager", "salesperson")),
+):
+    return update_lead(db, lead_id, lead_data, current_user)
