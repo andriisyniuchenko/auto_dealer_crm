@@ -14,3 +14,10 @@ class ActivityType(str, Enum):
     email = "email"
     note = "note"
     visit = "visit"
+
+
+class AppointmentStatus(str, Enum):
+    scheduled = "scheduled"
+    confirmed = "confirmed"
+    cancelled = "cancelled"
+    no_show = "no_show"
