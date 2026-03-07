@@ -37,12 +37,13 @@ def create_lead(db: Session, lead: LeadCreate, user_id: int):
 
 def get_leads(db: Session, current_user: User):
     if current_user.role.value in ["manager", "general_manager"]:
-        return db.query(Lead).all()
+        return db.query(Lead).order_by(Lead.created_at.desc()).all()
 
     return (
         db.query(Lead)
         .join(LeadSalesperson)
         .filter(LeadSalesperson.user_id == current_user.id)
+        .order_by(Lead.created_at.desc())
         .all()
     )
 
