@@ -174,3 +174,34 @@ def get_stale_leads(db: Session, current_user: User):
         })
 
     return result
+
+
+def remove_salesperson_from_lead(db: Session, lead_id: int, salesperson_id: int):
+    lead = db.query(Lead).filter(Lead.id == lead_id).first()
+    if not lead:
+        raise HTTPException(status_code=404, detail="Lead not found")
+
+    link = (
+        db.query(LeadSalesperson)
+        .filter(
+            LeadSalesperson.lead_id == lead_id,
+            LeadSalesperson.user_id == salesperson_id,
+        )
+        .first()
+    )
+    if not link:
+        raise HTTPException(status_code=404, detail="Salesperson is not assigned to this lead")
+
+    assigned_count = (
+        db.query(LeadSalesperson)
+        .filter(LeadSalesperson.lead_id == lead_id)
+        .count()
+    )
+
+    if assigned_count <= 1:
+        raise HTTPException(status_code=400, detail="Lead must have at least one salesperson")
+
+    db.delete(link)
+    db.commit()
+
+    return {"message": "Salesperson removed from lead successfully"}

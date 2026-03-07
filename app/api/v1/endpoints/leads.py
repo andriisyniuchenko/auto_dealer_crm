@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.schemas.lead import LeadCreate, LeadResponse, LeadAssign, LeadUpdate, StaleLeadResponse
 from app.services.lead_service import create_lead, get_leads, assign_salesperson_to_lead, get_lead_by_id, update_lead, \
-    get_stale_leads
+    get_stale_leads, remove_salesperson_from_lead
 from app.api.deps import require_roles
 from app.models.user import User
 
@@ -63,3 +63,13 @@ def update_existing_lead(
     current_user: User = Depends(require_roles("manager", "general_manager", "salesperson")),
 ):
     return update_lead(db, lead_id, lead_data, current_user)
+
+
+@router.delete("/{lead_id}/salespeople/{salesperson_id}")
+def remove_salesperson(
+    lead_id: int,
+    salesperson_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles("manager", "general_manager")),
+):
+    return remove_salesperson_from_lead(db, lead_id, salesperson_id)
