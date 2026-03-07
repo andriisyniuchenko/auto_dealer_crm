@@ -6,6 +6,8 @@ from app.schemas.lead import LeadCreate, LeadUpdate
 from app.models.user import User
 from fastapi import HTTPException
 
+from datetime import datetime, UTC
+
 
 def create_lead(db: Session, lead: LeadCreate, user_id: int):
     new_lead = Lead(
@@ -126,3 +128,47 @@ def update_lead(db: Session, lead_id: int, lead_data: LeadUpdate, current_user: 
     db.refresh(lead)
 
     return lead
+
+
+def get_stale_leads(db: Session, current_user: User):
+    if current_user.role.value in ["manager", "general_manager"]:
+        leads = (
+            db.query(Lead)
+            .order_by(Lead.last_contacted_at.asc(), Lead.created_at.desc())
+            .all()
+        )
+    else:
+        leads = (
+            db.query(Lead)
+            .join(LeadSalesperson)
+            .filter(LeadSalesperson.user_id == current_user.id)
+            .order_by(Lead.last_contacted_at.asc(), Lead.created_at.desc())
+            .all()
+        )
+
+    result = []
+
+    for lead in leads:
+        if lead.last_contacted_at is None:
+            days_since_contact = "Never contacted"
+        else:
+            delta = datetime.now(UTC).date() - lead.last_contacted_at.date()
+            days_since_contact = delta.days
+
+        result.append({
+            "id": lead.id,
+            "first_name": lead.first_name,
+            "last_name": lead.last_name,
+            "phone": lead.phone,
+            "email": lead.email,
+            "city": lead.city,
+            "state": lead.state,
+            "source": lead.source,
+            "interest": lead.interest,
+            "notes": lead.notes,
+            "status": lead.status,
+            "last_contacted_at": lead.last_contacted_at,
+            "days_since_contact": days_since_contact,
+        })
+
+    return result

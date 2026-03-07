@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from app.models.enums import LeadStatus
+from datetime import datetime
 
 
 class LeadBase(BaseModel):
@@ -41,3 +42,7 @@ class LeadUpdate(BaseModel):
     interest: str | None = None
     notes: str | None = None
     status: LeadStatus | None = None
+
+class StaleLeadResponse(LeadResponse):
+    last_contacted_at: datetime | None = None
+    days_since_contact: int | str
