@@ -30,6 +30,7 @@ class Lead(Base):
     status = Column(String, nullable=False, default=LeadStatus.active.value)
 
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    last_contacted_at = Column(DateTime, nullable=True)
 
     salespeople = relationship(
         "User",
