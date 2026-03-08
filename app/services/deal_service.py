@@ -111,4 +111,12 @@ def get_deal_by_id(db: Session, deal_id: int, current_user: User):
     if not link:
         raise HTTPException(status_code=403, detail="Not enough permissions")
 
+    salespeople = (
+        db.query(User)
+        .join(LeadSalesperson, User.id == LeadSalesperson.user_id)
+        .filter(LeadSalesperson.lead_id == deal.lead_id)
+        .all()
+    )
+
+    deal.salespeople = salespeople
     return deal

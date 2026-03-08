@@ -17,6 +17,7 @@ class DealResponse(BaseModel):
     status: DealStatus
     created_at: datetime
     closed_at: datetime | None = None
+    salespeople: list[DealSalesperson]
 
     class Config:
         from_attributes = True
@@ -24,3 +25,11 @@ class DealResponse(BaseModel):
 
 class DealClose(BaseModel):
     status: DealStatus
+
+
+class DealSalesperson(BaseModel):
+    id: int
+    email: str
+
+    class Config:
+        from_attributes = True
