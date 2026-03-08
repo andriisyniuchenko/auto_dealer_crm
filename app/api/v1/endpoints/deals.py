@@ -4,7 +4,7 @@ from app.db.session import get_db
 from app.api.deps import require_roles
 from app.models.user import User
 from app.schemas.deal import DealCreate, DealResponse, DealClose
-from app.services.deal_service import create_deal, close_deal, get_deals
+from app.services.deal_service import create_deal, close_deal, get_deals, get_deal_by_id
 
 router = APIRouter(
     prefix="/deals",
@@ -36,3 +36,12 @@ def get_my_deals(
     current_user: User = Depends(require_roles("salesperson", "manager", "general_manager")),
 ):
     return get_deals(db, current_user)
+
+
+@router.get("/{deal_id}", response_model=DealResponse)
+def get_deal_details(
+    deal_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles("salesperson", "manager", "general_manager")),
+):
+    return get_deal_by_id(db, deal_id, current_user)

@@ -88,3 +88,27 @@ def get_deals(db: Session, current_user: User):
         .filter(LeadSalesperson.user_id == current_user.id)
         .all()
     )
+
+
+def get_deal_by_id(db: Session, deal_id: int, current_user: User):
+    deal = db.query(Deal).filter(Deal.id == deal_id).first()
+
+    if not deal:
+        raise HTTPException(status_code=404, detail="Deal not found")
+
+    if current_user.role.value in ["manager", "general_manager"]:
+        return deal
+
+    link = (
+        db.query(LeadSalesperson)
+        .filter(
+            LeadSalesperson.lead_id == deal.lead_id,
+            LeadSalesperson.user_id == current_user.id,
+        )
+        .first()
+    )
+
+    if not link:
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+
+    return deal
