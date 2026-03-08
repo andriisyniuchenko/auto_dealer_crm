@@ -7,6 +7,8 @@ from app.services.lead_service import create_lead, get_leads, assign_salesperson
     get_stale_leads, remove_salesperson_from_lead
 from app.api.deps import require_roles
 from app.models.user import User
+from app.schemas.timeline import TimelineItemResponse
+from app.services.timeline_service import get_lead_timeline
 
 router = APIRouter(prefix="/leads", tags=["leads"])
 
@@ -45,6 +47,14 @@ def read_stale_leads(
 ):
     return get_stale_leads(db, current_user)
 
+
+@router.get("/{lead_id}/timeline", response_model=list[TimelineItemResponse])
+def read_lead_timeline(
+    lead_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles("manager", "general_manager", "salesperson")),
+):
+    return get_lead_timeline(db, lead_id, current_user)
 
 @router.get("/{lead_id}", response_model=LeadResponse)
 def read_lead_by_id(
