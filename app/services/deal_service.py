@@ -75,3 +75,16 @@ def close_deal(db: Session, deal_id: int, deal_data: DealClose, current_user: Us
     db.refresh(deal)
 
     return deal
+
+
+def get_deals(db: Session, current_user: User):
+
+    if current_user.role.value in ["manager", "general_manager"]:
+        return db.query(Deal).all()
+
+    return (
+        db.query(Deal)
+        .join(LeadSalesperson, Deal.lead_id == LeadSalesperson.lead_id)
+        .filter(LeadSalesperson.user_id == current_user.id)
+        .all()
+    )
