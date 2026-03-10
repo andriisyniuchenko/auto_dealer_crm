@@ -15,7 +15,11 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 @router.post("/register", response_model=UserResponse)
-def register_user(user: UserCreate, db: Session = Depends(get_db)):
+def register_user(
+    user: UserCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles("manager", "general_manager")),
+):
     return create_user(db, user)
 
 
