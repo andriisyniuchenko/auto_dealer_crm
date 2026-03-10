@@ -1,10 +1,10 @@
 # Auto Dealer CRM API
 
-Backend CRM system for a U.S. car dealership built with FastAPI and PostgreSQL.
+Backend CRM system for a car dealership built with **FastAPI** and
+**PostgreSQL**.
 
-The project implements a production-style backend architecture with role-based access control, lead management, deal tracking, and sales statistics.
-
-**Status:** Active Development
+The system manages leads, sales activity, appointments, and deals while
+supporting **role-based access control** for dealership staff.
 
 ---
 
@@ -39,38 +39,49 @@ The project implements a production-style backend architecture with role-based a
 
 ---
 
-## Current Features
+## Features
 
-### Authentication
-- User registration
-- JWT authentication
-- Role-based access control
+-   User registration
+-   JWT authentication
+-   Role-based access control
 
-### Leads
-- Create leads
-- Update leads
-- Assign / remove salespeople
-- Shared lead ownership (50/50)
-- Stale leads tracking
-- Last contacted tracking
+### Lead Management
 
-### Notes & Activity
-- Lead notes history
-- Activity timeline (call, sms, email, visit)
+-   Lead creation
+-   Lead assignment to salespeople
+-   Shared lead ownership (50/50)
+-   Lead status management
+-   Lead timeline (notes, activities, appointments, deals)
+-   Stale lead detection
+
+### Sales Activity
+
+-   Notes history
+-   Activity tracking
+-   Last contacted tracking
 
 ### Appointments
-- Schedule appointments
-- Update appointment status
-- View today's appointments
+
+-   Appointment creation
+-   Appointment status updates
+-   Today's appointments view
+-   Calendar endpoint
 
 ### Deals
-- Create deal from lead
-- Close deal (`sold`, `lost`, `cancelled`)
 
-### Sales Statistics
-- Sold vehicles per salesperson
-- Automatic 50/50 split for shared deals
+-   Deal creation
+-   Deal status management
+-   Split deals (0.5 / 1.0 credit)
+-   Deal statistics per salesperson
 
+### Dashboard
+
+-   Total leads
+-   Active leads
+-   Stale leads
+-   Appointments today
+-   Open deals
+-   Sold deals
 ---
 
 ## Local Development
@@ -98,10 +109,3 @@ app/
 ```
 
 ---
-
-## Planned
-
-- Finance module
-- Dashboard endpoints
-- Background reminders
-- Docker deployment
