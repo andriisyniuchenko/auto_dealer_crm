@@ -41,7 +41,7 @@ supporting **role-based access control** for dealership staff.
 
 ## Features
 
--   User registration
+-   Manager-controlled user registration
 -   JWT authentication
 -   Role-based access control
 
@@ -109,3 +109,10 @@ app/
 ```
 
 ---
+
+## Access Control
+
+This system is designed as an internal dealership CRM.
+
+Public self-registration is disabled.  
+New users can only be created by users with **manager** or **general_manager** roles.
