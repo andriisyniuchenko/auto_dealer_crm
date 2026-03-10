@@ -205,3 +205,32 @@ def remove_salesperson_from_lead(db: Session, lead_id: int, salesperson_id: int)
     db.commit()
 
     return {"message": "Salesperson removed from lead successfully"}
+
+
+def get_leads_with_salespeople(db: Session, current_user: User):
+    leads = get_leads(db, current_user)
+
+    result = []
+
+    for lead in leads:
+        salespeople = (
+            db.query(User)
+            .join(LeadSalesperson, User.id == LeadSalesperson.user_id)
+            .filter(LeadSalesperson.lead_id == lead.id)
+            .all()
+        )
+
+        ownership = "50/50" if len(salespeople) == 2 else "100%"
+
+        result.append({
+            "id": lead.id,
+            "first_name": lead.first_name,
+            "last_name": lead.last_name,
+            "phone": lead.phone,
+            "status": lead.status,
+            "last_contacted_at": lead.last_contacted_at,
+            "ownership": ownership,
+            "salespeople": [user.email for user in salespeople],
+        })
+
+    return result

@@ -11,6 +11,8 @@
             <th>Name</th>
             <th>Phone</th>
             <th>Status</th>
+            <th>Ownership</th>
+            <th>Salespeople</th>
             <th>Last Contacted</th>
         </tr>
     </thead>
@@ -24,6 +26,8 @@
             </td>
             <td>{{ lead.phone }}</td>
             <td>{{ lead.status }}</td>
+            <td>{{ lead.ownership }}</td>
+            <td>{{ lead.salespeople | join(", ") }}</td>
             <td>
                 {% if lead.last_contacted_at %}
                     {{ lead.last_contacted_at }}

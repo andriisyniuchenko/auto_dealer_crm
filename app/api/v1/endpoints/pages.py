@@ -13,6 +13,7 @@ from app.services.lead_service import get_lead_by_id
 from app.services.timeline_service import get_lead_timeline
 from app.services.appointment_service import get_today_appointments
 from app.services.deal_service import get_deals
+from app.services.lead_service import get_leads_with_salespeople
 
 router = APIRouter(tags=["pages"])
 
@@ -98,7 +99,7 @@ def leads_page(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
 ):
-    leads = get_leads(db, current_user)
+    leads = get_leads_with_salespeople(db, current_user)
 
     return templates.TemplateResponse(
         "leads.html",
@@ -119,12 +120,15 @@ def lead_detail_page(
     lead = get_lead_by_id(db, lead_id, current_user)
     timeline = get_lead_timeline(db, lead_id, current_user)
 
+    salespeople = [user.email for user in lead.salespeople]
+
     return templates.TemplateResponse(
         "lead_detail.html",
         {
             "request": request,
             "lead": lead,
             "timeline": timeline,
+            "salespeople": salespeople,
             "current_user": current_user,
         },
     )

@@ -6,6 +6,13 @@
 <h2>{{ lead.first_name }} {{ lead.last_name }}</h2>
 
 <div class="card" style="margin-bottom: 20px;">
+    <p><strong>Salespeople:</strong>
+        {% if salespeople %}
+            {{ salespeople | join(", ") }}
+        {% else %}
+            Not assigned
+        {% endif %}
+    </p>
     <p><strong>Phone:</strong> {{ lead.phone }}</p>
     <p><strong>Email:</strong> {{ lead.email or "-" }}</p>
     <p><strong>Status:</strong> {{ lead.status }}</p>
