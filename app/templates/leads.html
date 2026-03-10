@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Leads{% endblock %}
+
+{% block content %}
+<h2>Leads</h2>
+
+<table class="crm-table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Status</th>
+            <th>Last Contacted</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for lead in leads %}
+        <tr>
+            <td>
+                <a href="/api/v1/leads-page/{{ lead.id }}">
+                    {{ lead.first_name }} {{ lead.last_name }}
+                </a>
+            </td>
+            <td>{{ lead.phone }}</td>
+            <td>{{ lead.status }}</td>
+            <td>
+                {% if lead.last_contacted_at %}
+                    {{ lead.last_contacted_at }}
+                {% else %}
+                    Never contacted
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

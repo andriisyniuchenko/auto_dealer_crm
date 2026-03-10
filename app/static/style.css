@@ -85,3 +85,37 @@ button {
 button:hover {
     background: #1d4ed8;
 }
+
+.crm-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+.crm-table th,
+.crm-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+}
+
+.crm-table th {
+    background: #f3f4f6;
+    font-weight: bold;
+}
+
+.crm-table tr:hover {
+    background: #f9fafb;
+}
+
+.crm-table a {
+    color: #2563eb;
+    text-decoration: none;
+}
+
+.crm-table a:hover {
+    text-decoration: underline;
+}

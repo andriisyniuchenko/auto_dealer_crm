@@ -8,6 +8,7 @@ from app.db.session import get_db
 from app.models.user import User
 from app.services.auth_service import login_user
 from app.services.dashboard_service import get_dashboard_data
+from app.services.lead_service import get_leads
 
 router = APIRouter(tags=["pages"])
 
@@ -79,3 +80,20 @@ def logout():
     response = RedirectResponse(url="/api/v1/login-page", status_code=302)
     response.delete_cookie("access_token")
     return response
+
+@router.get("/leads-page")
+def leads_page(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    leads = get_leads(db, current_user)
+
+    return templates.TemplateResponse(
+        "leads.html",
+        {
+            "request": request,
+            "leads": leads,
+            "current_user": current_user,
+        },
+    )
