@@ -9,6 +9,8 @@ from app.models.user import User
 from app.services.auth_service import login_user
 from app.services.dashboard_service import get_dashboard_data
 from app.services.lead_service import get_leads
+from app.services.lead_service import get_lead_by_id
+from app.services.timeline_service import get_lead_timeline
 
 router = APIRouter(tags=["pages"])
 
@@ -101,6 +103,26 @@ def leads_page(
         {
             "request": request,
             "leads": leads,
+            "current_user": current_user,
+        },
+    )
+
+@router.get("/leads-page/{lead_id}")
+def lead_detail_page(
+    lead_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    lead = get_lead_by_id(db, lead_id, current_user)
+    timeline = get_lead_timeline(db, lead_id, current_user)
+
+    return templates.TemplateResponse(
+        "lead_detail.html",
+        {
+            "request": request,
+            "lead": lead,
+            "timeline": timeline,
             "current_user": current_user,
         },
     )

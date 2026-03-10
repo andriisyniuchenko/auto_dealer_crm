@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Lead Details{% endblock %}
+
+{% block content %}
+<h2>{{ lead.first_name }} {{ lead.last_name }}</h2>
+
+<div class="card" style="margin-bottom: 20px;">
+    <p><strong>Phone:</strong> {{ lead.phone }}</p>
+    <p><strong>Email:</strong> {{ lead.email or "-" }}</p>
+    <p><strong>Status:</strong> {{ lead.status }}</p>
+    <p><strong>City:</strong> {{ lead.city or "-" }}</p>
+    <p><strong>State:</strong> {{ lead.state or "-" }}</p>
+    <p><strong>Source:</strong> {{ lead.source or "-" }}</p>
+    <p><strong>Interest:</strong> {{ lead.interest or "-" }}</p>
+    <p><strong>Notes:</strong> {{ lead.notes or "-" }}</p>
+</div>
+
+<h3>Timeline</h3>
+
+<div class="card">
+    {% if timeline %}
+        <ul style="list-style: none; padding-left: 0;">
+            {% for item in timeline %}
+            <li style="padding: 12px 0; border-bottom: 1px solid #e5e7eb;">
+                <strong>{{ item.type }}</strong><br>
+                <small>{{ item.timestamp }}</small><br>
+                <span>{{ item.content }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No timeline items yet.</p>
+    {% endif %}
+</div>
+{% endblock %}
