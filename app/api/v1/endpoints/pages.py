@@ -14,6 +14,10 @@ from app.services.timeline_service import get_lead_timeline
 from app.services.appointment_service import get_today_appointments
 from app.services.deal_service import get_deals
 from app.services.lead_service import get_leads_with_salespeople
+from fastapi import Form
+from app.schemas.lead import LeadCreate
+from app.services.lead_service import create_lead
+
 
 router = APIRouter(tags=["pages"])
 
@@ -109,6 +113,54 @@ def leads_page(
             "current_user": current_user,
         },
     )
+
+
+
+@router.get("/leads-page/create")
+def create_lead_page(
+    request: Request,
+    current_user: User = Depends(get_current_active_user),
+):
+    return templates.TemplateResponse(
+        "lead_create.html",
+        {
+            "request": request,
+            "current_user": current_user,
+        },
+    )
+
+
+@router.post("/leads-page/create")
+def create_lead_page_post(
+    request: Request,
+    first_name: str = Form(...),
+    last_name: str = Form(...),
+    phone: str = Form(...),
+    email: str = Form(None),
+    city: str = Form(None),
+    state: str = Form(None),
+    source: str = Form(None),
+    interest: str = Form(None),
+    notes: str = Form(None),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    lead_data = LeadCreate(
+        first_name=first_name,
+        last_name=last_name,
+        phone=phone,
+        email=email,
+        city=city,
+        state=state,
+        source=source,
+        interest=interest,
+        notes=notes,
+    )
+
+    create_lead(db, lead_data, current_user.id)
+
+    return RedirectResponse(url="/api/v1/leads-page", status_code=302)
+
 
 @router.get("/leads-page/{lead_id}")
 def lead_detail_page(

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Create Lead{% endblock %}
+
+{% block content %}
+<h2>Create Lead</h2>
+
+<form method="post" action="/api/v1/leads-page/create">
+    <label>First Name</label>
+    <input type="text" name="first_name" required>
+
+    <label>Last Name</label>
+    <input type="text" name="last_name" required>
+
+    <label>Phone</label>
+    <input type="text" name="phone" required>
+
+    <label>Email</label>
+    <input type="email" name="email">
+
+    <label>City</label>
+    <input type="text" name="city">
+
+    <label>State</label>
+    <input type="text" name="state">
+
+    <label>Source</label>
+    <input type="text" name="source">
+
+    <label>Interest</label>
+    <input type="text" name="interest">
+
+    <label>Notes</label>
+    <input type="text" name="notes">
+
+    <button type="submit">Create Lead</button>
+</form>
+{% endblock %}
