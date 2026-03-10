@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h2>Dashboard</h2>
+
+<div class="grid">
+    <div class="card">
+        <h3>Total Leads</h3>
+        <p>{{ dashboard.total_leads }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Active Leads</h3>
+        <p>{{ dashboard.active_leads }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Stale Leads</h3>
+        <p>{{ dashboard.stale_leads }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Appointments Today</h3>
+        <p>{{ dashboard.appointments_today }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Open Deals</h3>
+        <p>{{ dashboard.open_deals }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Sold Deals</h3>
+        <p>{{ dashboard.sold_deals }}</p>
+    </div>
+</div>
+{% endblock %}

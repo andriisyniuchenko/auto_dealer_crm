@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<h2>Login</h2>
+
+<form method="post" action="/api/v1/login-page">
+    <div>
+        <label>Email</label>
+        <input type="email" name="username" required>
+    </div>
+
+    <div style="margin-top: 12px;">
+        <label>Password</label>
+        <input type="password" name="password" required>
+    </div>
+
+    <div style="margin-top: 16px;">
+        <button type="submit">Login</button>
+    </div>
+
+    {% if error %}
+    <p style="color: red; margin-top: 12px;">{{ error }}</p>
+    {% endif %}
+</form>
+{% endblock %}
