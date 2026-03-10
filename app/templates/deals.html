@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Deals{% endblock %}
+
+{% block content %}
+<h2>Deals</h2>
+
+<table class="crm-table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Lead</th>
+            <th>Vehicle</th>
+            <th>Price</th>
+            <th>Status</th>
+            <th>Closed At</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for deal in deals %}
+        <tr>
+            <td>{{ deal.id }}</td>
+            <td>
+                <a href="/api/v1/leads-page/{{ deal.lead_id }}">
+                    Lead #{{ deal.lead_id }}
+                </a>
+            </td>
+            <td>{{ deal.vehicle }}</td>
+            <td>${{ deal.price }}</td>
+            <td>{{ deal.status }}</td>
+            <td>
+                {% if deal.closed_at %}
+                    {{ deal.closed_at }}
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if not deals %}
+<p>No deals found.</p>
+{% endif %}
+{% endblock %}

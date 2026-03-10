@@ -12,6 +12,7 @@ from app.services.lead_service import get_leads
 from app.services.lead_service import get_lead_by_id
 from app.services.timeline_service import get_lead_timeline
 from app.services.appointment_service import get_today_appointments
+from app.services.deal_service import get_deals
 
 router = APIRouter(tags=["pages"])
 
@@ -142,6 +143,24 @@ def appointments_page(
         {
             "request": request,
             "appointments": appointments,
+            "current_user": current_user,
+        },
+    )
+
+
+@router.get("/deals-page")
+def deals_page(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    deals = get_deals(db, current_user)
+
+    return templates.TemplateResponse(
+        "deals.html",
+        {
+            "request": request,
+            "deals": deals,
             "current_user": current_user,
         },
     )
