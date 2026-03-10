@@ -11,6 +11,7 @@ from app.services.dashboard_service import get_dashboard_data
 from app.services.lead_service import get_leads
 from app.services.lead_service import get_lead_by_id
 from app.services.timeline_service import get_lead_timeline
+from app.services.appointment_service import get_today_appointments
 
 router = APIRouter(tags=["pages"])
 
@@ -123,6 +124,24 @@ def lead_detail_page(
             "request": request,
             "lead": lead,
             "timeline": timeline,
+            "current_user": current_user,
+        },
+    )
+
+
+@router.get("/appointments-page")
+def appointments_page(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    appointments = get_today_appointments(db, current_user)
+
+    return templates.TemplateResponse(
+        "appointments.html",
+        {
+            "request": request,
+            "appointments": appointments,
             "current_user": current_user,
         },
     )
