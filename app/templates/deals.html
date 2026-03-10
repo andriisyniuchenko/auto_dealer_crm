@@ -27,7 +27,11 @@
             </td>
             <td>{{ deal.vehicle }}</td>
             <td>${{ deal.price }}</td>
-            <td>{{ deal.status }}</td>
+            <td>
+                <span class="status-badge status-{{ deal.status }}">
+                    {{ deal.status }}
+                </span>
+            </td>
             <td>
                 {% if deal.closed_at %}
                     {{ deal.closed_at }}

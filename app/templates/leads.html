@@ -25,7 +25,11 @@
                 </a>
             </td>
             <td>{{ lead.phone }}</td>
-            <td>{{ lead.status }}</td>
+            <td>
+                <span class="status-badge status-{{ lead.status }}">
+                    {{ lead.status }}
+                </span>
+            </td>
             <td>{{ lead.ownership }}</td>
             <td>{{ lead.salespeople | join(", ") }}</td>
             <td>

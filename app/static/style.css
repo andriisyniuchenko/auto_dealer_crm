@@ -119,3 +119,45 @@ button:hover {
 .crm-table a:hover {
     text-decoration: underline;
 }
+
+.status-badge {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: bold;
+    text-transform: capitalize;
+}
+
+.status-active {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-sold {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.status-lost {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.status-archived,
+.status-cancelled {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.status-open,
+.status-scheduled,
+.status-confirmed {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-no_show {
+    background: #f3e8ff;
+    color: #7e22ce;
+}

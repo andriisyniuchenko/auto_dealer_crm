@@ -15,7 +15,12 @@
     </p>
     <p><strong>Phone:</strong> {{ lead.phone }}</p>
     <p><strong>Email:</strong> {{ lead.email or "-" }}</p>
-    <p><strong>Status:</strong> {{ lead.status }}</p>
+    <p>
+        <strong>Status:</strong>
+        <span class="status-badge status-{{ lead.status }}">
+            {{ lead.status }}
+        </span>
+    </p>
     <p><strong>City:</strong> {{ lead.city or "-" }}</p>
     <p><strong>State:</strong> {{ lead.state or "-" }}</p>
     <p><strong>Source:</strong> {{ lead.source or "-" }}</p>
