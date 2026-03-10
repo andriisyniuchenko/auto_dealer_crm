@@ -17,11 +17,18 @@ templates = Jinja2Templates(directory="app/templates")
 
 @router.get("/login-page")
 def login_page(request: Request):
+
+    token = request.cookies.get("access_token")
+
+    if token:
+        return RedirectResponse(url="/api/v1/dashboard-page")
+
     return templates.TemplateResponse(
         "login.html",
         {
             "request": request,
             "error": None,
+            "current_user": None,
         },
     )
 

@@ -9,12 +9,21 @@
 <body>
     <header>
         <h1>Auto Dealer CRM</h1>
-        <nav>
-            <a href="/api/v1/dashboard-page">Dashboard</a>
-            <a href="/api/v1/leads-page">Leads</a>
-            <a href="/api/v1/login-page">Login</a>
-            <a href="/api/v1/logout">Logout</a>
-        </nav>
+<nav>
+
+{% if current_user %}
+
+<a href="/api/v1/dashboard-page">Dashboard</a>
+<a href="/api/v1/leads-page">Leads</a>
+<a href="/api/v1/logout">Logout</a>
+
+{% else %}
+
+<a href="/api/v1/login-page">Login</a>
+
+{% endif %}
+
+</nav>
     </header>
 
     <main>
