@@ -34,7 +34,7 @@
             <td>{{ lead.salespeople | join(", ") }}</td>
             <td>
                 {% if lead.last_contacted_at %}
-                    {{ lead.last_contacted_at }}
+                    {{ lead.last_contacted_at.strftime("%Y-%m-%d %H:%M") }}
                 {% else %}
                     Never contacted
                 {% endif %}

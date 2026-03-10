@@ -36,7 +36,7 @@
             {% for item in timeline %}
             <li style="padding: 12px 0; border-bottom: 1px solid #e5e7eb;">
                 <strong>{{ item.type }}</strong><br>
-                <small>{{ item.timestamp }}</small><br>
+                <small>{{ item.timestamp.strftime("%Y-%m-%d %H:%M") }}</small><br>
                 <span>{{ item.content }}</span>
             </li>
             {% endfor %}
