@@ -71,6 +71,13 @@ def close_deal(db: Session, deal_id: int, deal_data: DealClose, current_user: Us
     deal.status = deal_data.status.value
     deal.closed_at = datetime.utcnow()
 
+    lead = db.query(Lead).filter(Lead.id == deal.lead_id).first()
+    if lead:
+        if deal_data.status.value == "sold":
+            lead.status = "sold"
+        elif deal_data.status.value in ["lost", "cancelled"]:
+            lead.status = deal_data.status.value
+
     db.commit()
     db.refresh(deal)
 
