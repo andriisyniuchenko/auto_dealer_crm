@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import auth, leads, notes, activity, appointments, calendar, deals, stats
+from app.api.v1.endpoints import auth, leads, notes, activity, appointments, calendar, deals, stats, dashboard
 
 api_router = APIRouter()
 
@@ -11,3 +11,4 @@ api_router.include_router(appointments.router)
 api_router.include_router(calendar.router)
 api_router.include_router(deals.router)
 api_router.include_router(stats.router)
+api_router.include_router(dashboard.router)
