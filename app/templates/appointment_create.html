@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Schedule Appointment{% endblock %}
+
+{% block content %}
+<h2>Schedule Appointment</h2>
+
+<div class="card">
+<form method="post" class="crm-form">
+
+    <label>Date and Time</label>
+    <input type="datetime-local" name="appointment_time" required>
+
+    <label>Notes</label>
+    <textarea name="notes"></textarea>
+
+    <button type="submit">Create Appointment</button>
+
+</form>
+</div>
+
+{% endblock %}

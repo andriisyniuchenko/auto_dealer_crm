@@ -8,16 +8,17 @@ from app.db.session import get_db
 from app.models.user import User
 from app.services.auth_service import login_user
 from app.services.dashboard_service import get_dashboard_data
-from app.services.lead_service import get_leads
 from app.services.lead_service import get_lead_by_id
 from app.services.timeline_service import get_lead_timeline
 from app.services.appointment_service import get_today_appointments
 from app.services.deal_service import get_deals
 from app.services.lead_service import get_leads_with_salespeople
-from fastapi import Form
 from app.schemas.lead import LeadCreate
 from app.services.lead_service import create_lead
+from app.services.appointment_service import create_appointment
+from app.schemas.appointment import AppointmentCreate
 
+from datetime import datetime
 
 router = APIRouter(tags=["pages"])
 
@@ -219,4 +220,53 @@ def deals_page(
             "deals": deals,
             "current_user": current_user,
         },
+    )
+
+
+@router.get("/appointments/create/{lead_id}")
+def appointment_create_page(
+    request: Request,
+    lead_id: int,
+    current_user: User = Depends(get_current_active_user),
+):
+    return templates.TemplateResponse(
+        "appointment_create.html",
+        {
+            "request": request,
+            "lead_id": lead_id,
+            "current_user": current_user,
+        },
+    )
+
+
+@router.post("/appointments/create/{lead_id}")
+def appointment_create(
+    request: Request,
+    lead_id: int,
+    appointment_date: str = Form(...),
+    appointment_time: str = Form(...),
+    notes: str = Form(None),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    appointment_datetime = datetime.fromisoformat(
+        f"{appointment_date}T{appointment_time}"
+    )
+
+    appointment_data = AppointmentCreate(
+        appointment_at=appointment_datetime,
+        notes=notes,
+        status="scheduled"
+    )
+
+    create_appointment(
+        db=db,
+        lead_id=lead_id,
+        appointment_data=appointment_data,
+        current_user=current_user,
+    )
+
+    return RedirectResponse(
+        url=f"/api/v1/leads-page/{lead_id}",
+        status_code=303
     )
