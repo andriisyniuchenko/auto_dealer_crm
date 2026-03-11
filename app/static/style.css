@@ -203,3 +203,47 @@ button:hover {
     min-height: 160px;
     line-height: 1.6;
 }
+
+.lead-container {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.lead-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.lead-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+}
+
+.lead-card {
+    background: white;
+    padding: 22px;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+}
+
+.lead-card h3 {
+    margin-top: 0;
+    margin-bottom: 14px;
+    font-size: 18px;
+}
+
+.lead-card p {
+    margin: 6px 0;
+    font-size: 16px;
+}
+
+.lead-notes {
+    margin-top: 30px;
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+}

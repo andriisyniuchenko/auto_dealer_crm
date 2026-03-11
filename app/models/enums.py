@@ -28,3 +28,14 @@ class DealStatus(str, Enum):
     sold = "sold"
     lost = "lost"
     cancelled = "cancelled"
+
+
+class LeadStage(str, Enum):
+    new = "new"
+    contacted = "contacted"
+    appointment = "appointment"
+    test_drive = "test_drive"
+    negotiation = "negotiation"
+    finance = "finance"
+    sold = "sold"
+    lost = "lost"

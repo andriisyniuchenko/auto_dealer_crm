@@ -3,64 +3,49 @@
 {% block title %}Lead Details{% endblock %}
 
 {% block content %}
-<h2>{{ lead.first_name }} {{ lead.last_name }}</h2>
+<div class="lead-container">
 
-<div class="card" style="margin-bottom: 20px;">
-    <p><strong>Salespeople:</strong>
-        {% if salespeople %}
-            {{ salespeople | join(", ") }}
-        {% else %}
-            Not assigned
-        {% endif %}
-    </p>
-    <p><strong>Phone:</strong> {{ lead.phone }}</p>
-    <p><strong>Email:</strong> {{ lead.email or "-" }}</p>
-    <p>
-        <strong>Status:</strong>
+    <div class="lead-header">
+        <h2>{{ lead.first_name }} {{ lead.last_name }}</h2>
         <span class="status-badge status-{{ lead.status }}">
             {{ lead.status }}
         </span>
-    </p>
-    <p><strong>City:</strong> {{ lead.city or "-" }}</p>
-    <p><strong>State:</strong> {{ lead.state or "-" }}</p>
-    <p><strong>Source:</strong> {{ lead.source or "-" }}</p>
-    <p><strong>Interest:</strong> {{ lead.interest or "-" }}</p>
-    <p><strong>Notes:</strong> {{ lead.notes or "-" }}</p>
-</div>
+    </div>
 
-<h3>Create Appointment</h3>
+    <div class="lead-grid">
 
-<div class="card" style="margin-bottom:20px;">
-    <form method="post" action="/api/v1/appointments/create/{{ lead.id }}" class="crm-form">
+        <div class="lead-card">
+            <h3>Contact</h3>
+            <p><strong>Phone:</strong> {{ lead.phone }}</p>
+            <p><strong>Email:</strong> {{ lead.email or "-" }}</p>
+            <p><strong>City:</strong> {{ lead.city or "-" }}</p>
+            <p><strong>State:</strong> {{ lead.state or "-" }}</p>
+        </div>
 
-        <label>Date</label>
-        <input type="date" name="appointment_date" required>
+        <div class="lead-card">
+            <h3>Lead Info</h3>
+            <p><strong>Stage:</strong> {{ lead.stage }}</p>
+            <p><strong>Source:</strong> {{ lead.source or "-" }}</p>
+            <p><strong>Interest:</strong> {{ lead.interest or "-" }}</p>
+        </div>
 
-        <label>Time</label>
-        <input type="time" name="appointment_time" required>
+        <div class="lead-card">
+            <h3>Ownership</h3>
+            <p>
+                {% if salespeople %}
+                    {{ salespeople | join(", ") }}
+                {% else %}
+                    Not assigned
+                {% endif %}
+            </p>
+        </div>
 
-        <label>Notes</label>
-        <textarea name="notes"></textarea>
+    </div>
 
-        <button type="submit">Create Appointment</button>
+    <div class="lead-notes">
+        <h3>Notes</h3>
+        <p>{{ lead.notes or "-" }}</p>
+    </div>
 
-    </form>
-</div>
-<h3>Timeline</h3>
-
-<div class="card">
-    {% if timeline %}
-        <ul style="list-style: none; padding-left: 0;">
-            {% for item in timeline %}
-            <li style="padding: 12px 0; border-bottom: 1px solid #e5e7eb;">
-                <strong>{{ item.type }}</strong><br>
-                <small>{{ item.timestamp.strftime("%Y-%m-%d %H:%M") }}</small><br>
-                <span>{{ item.content }}</span>
-            </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No timeline items yet.</p>
-    {% endif %}
 </div>
 {% endblock %}

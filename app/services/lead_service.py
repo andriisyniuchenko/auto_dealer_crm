@@ -124,6 +124,15 @@ def update_lead(db: Session, lead_id: int, lead_data: LeadUpdate, current_user: 
     for field, value in update_data.items():
         setattr(lead, field, value)
 
+    # ✅ sync stage → status
+    if "stage" in update_data:
+        if lead.stage == "sold":
+            lead.status = "sold"
+        elif lead.stage == "lost":
+            lead.status = "lost"
+        else:
+            lead.status = "active"
+
     db.commit()
     db.refresh(lead)
 
