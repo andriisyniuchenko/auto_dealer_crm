@@ -121,3 +121,22 @@ def test_shared_deal_counts_as_half_for_each_salesperson(
 
     assert sales1_stat["sold_count"] == 0.5
     assert sales2_stat["sold_count"] == 0.5
+
+
+def test_create_deal_for_nonexistent_lead(
+    client, register_user, login_user, auth_headers
+):
+    email, password, _ = register_user("salesperson")
+    token = login_user(email, password)
+
+    response = client.post(
+        "/api/v1/deals/",
+        json={
+            "lead_id": 999999,
+            "vehicle": "Toyota Camry",
+            "price": 20000,
+        },
+        headers=auth_headers(token),
+    )
+
+    assert response.status_code == 404

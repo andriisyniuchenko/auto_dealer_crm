@@ -141,3 +141,48 @@ def test_manager_can_assign_second_salesperson_but_not_duplicate():
         headers=auth_headers(manager_token),
     )
     assert duplicate_assign.status_code == 400
+
+
+def test_salesperson_cannot_assign_lead(
+    client, register_user, login_user, auth_headers, create_lead
+):
+    sales1_email, sales1_password, _ = register_user("salesperson")
+    sales2_email, sales2_password, sales2_id = register_user("salesperson")
+
+    token = login_user(sales1_email, sales1_password)
+
+    lead_id = create_lead(token, "RBACLead")
+
+    response = client.post(
+        f"/api/v1/leads/{lead_id}/assign",
+        json={"salesperson_id": sales2_id},
+        headers=auth_headers(token),
+    )
+
+    assert response.status_code == 403
+
+
+def test_cannot_assign_more_than_two_salespeople(
+    client, manager_token, auth_headers, register_user, login_user, create_lead
+):
+    s1_email, s1_pass, _ = register_user("salesperson")
+    s2_email, s2_pass, s2_id = register_user("salesperson")
+    s3_email, s3_pass, s3_id = register_user("salesperson")
+
+    token = login_user(s1_email, s1_pass)
+
+    lead_id = create_lead(token, "MaxTwo")
+
+    client.post(
+        f"/api/v1/leads/{lead_id}/assign",
+        json={"salesperson_id": s2_id},
+        headers=auth_headers(manager_token),
+    )
+
+    response = client.post(
+        f"/api/v1/leads/{lead_id}/assign",
+        json={"salesperson_id": s3_id},
+        headers=auth_headers(manager_token),
+    )
+
+    assert response.status_code == 400
