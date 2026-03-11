@@ -3,13 +3,14 @@ from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
+from app.schemas.appointment import AppointmentUpdate
+from app.services.appointment_service import update_appointment
 from app.api.deps import get_current_active_user, require_roles
 from app.db.session import get_db
 from app.models.user import User
 from app.services.auth_service import login_user
 from app.services.dashboard_service import get_dashboard_data
 from app.services.timeline_service import get_lead_timeline
-from app.services.appointment_service import get_today_appointments
 from app.services.deal_service import get_deals
 from app.services.lead_service import get_leads_with_salespeople
 from app.schemas.lead import LeadCreate
@@ -416,5 +417,23 @@ def edit_lead_page_post(
 
     return RedirectResponse(
         url=f"/api/v1/leads-page/{lead_id}",
+        status_code=303,
+    )
+
+
+@router.post("/appointments-page/{lead_id}/{appointment_id}/update")
+def update_appointment_page(
+    lead_id: int,
+    appointment_id: int,
+    status: str = Form(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    appointment_data = AppointmentUpdate(status=status)
+
+    update_appointment(db, appointment_id, appointment_data, current_user)
+
+    return RedirectResponse(
+        url="/api/v1/appointments-page",
         status_code=303,
     )
