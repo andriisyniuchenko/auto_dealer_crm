@@ -14,7 +14,6 @@ class LeadBase(BaseModel):
     interest: str | None = None
     notes: str | None = None
     status: LeadStatus = LeadStatus.active
-    stage: str = "new"
 
 
 class LeadCreate(LeadBase):

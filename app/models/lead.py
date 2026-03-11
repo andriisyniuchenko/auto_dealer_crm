@@ -28,7 +28,6 @@ class Lead(Base):
     notes = Column(Text, nullable=True)
 
     status = Column(String, nullable=False, default=LeadStatus.active.value)
-    stage = Column(String, nullable=True, default=LeadStage.new.value)
 
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_contacted_at = Column(DateTime, nullable=True)
