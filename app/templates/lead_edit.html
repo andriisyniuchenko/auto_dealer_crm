@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Lead{% endblock %}
+
+{% block content %}
+<h2>Edit Lead</h2>
+
+<form method="post" class="crm-form">
+    <label>First Name</label>
+    <input type="text" name="first_name" value="{{ lead.first_name }}" required>
+
+    <label>Last Name</label>
+    <input type="text" name="last_name" value="{{ lead.last_name }}" required>
+
+    <label>Phone</label>
+    <input type="text" name="phone" value="{{ lead.phone }}" required>
+
+    <label>Email</label>
+    <input type="email" name="email" value="{{ lead.email or '' }}">
+
+    <label>City</label>
+    <input type="text" name="city" value="{{ lead.city or '' }}">
+
+    <label>State</label>
+    <input type="text" name="state" value="{{ lead.state or '' }}">
+
+    <label>Source</label>
+    <input type="text" name="source" value="{{ lead.source or '' }}">
+
+    <label>Interest</label>
+    <input type="text" name="interest" value="{{ lead.interest or '' }}">
+
+    <label>Status</label>
+    <select name="status" required>
+        <option value="active" {% if lead.status == "active" %}selected{% endif %}>Active</option>
+        <option value="sold" {% if lead.status == "sold" %}selected{% endif %}>Sold</option>
+        <option value="lost" {% if lead.status == "lost" %}selected{% endif %}>Lost</option>
+        <option value="archived" {% if lead.status == "archived" %}selected{% endif %}>Archived</option>
+    </select>
+
+    <label>Notes</label>
+    <textarea name="notes">{{ lead.notes or '' }}</textarea>
+
+    <button type="submit">Save Changes</button>
+</form>
+{% endblock %}

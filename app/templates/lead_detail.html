@@ -10,6 +10,9 @@
         <span class="status-badge status-{{ lead.status }}">
             {{ lead.status }}
         </span>
+        <a href="/api/v1/leads-page/{{ lead.id }}/edit" class="btn btn-edit">
+            Edit Lead
+        </a>
     </div>
 
     <div class="lead-grid">

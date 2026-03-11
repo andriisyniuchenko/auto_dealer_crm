@@ -22,7 +22,10 @@ from app.services.lead_service import (
     get_lead_by_id,
     assign_salesperson_to_lead,
     remove_salesperson_from_lead,
+    update_lead
 )
+
+from app.schemas.lead import LeadUpdate
 
 
 from datetime import datetime
@@ -355,6 +358,61 @@ def remove_salesperson_page(
     current_user: User = Depends(require_roles("manager", "general_manager")),
 ):
     remove_salesperson_from_lead(db, lead_id, salesperson_id)
+
+    return RedirectResponse(
+        url=f"/api/v1/leads-page/{lead_id}",
+        status_code=303,
+    )
+
+
+@router.get("/leads-page/{lead_id}/edit")
+def edit_lead_page(
+    lead_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    lead = get_lead_by_id(db, lead_id, current_user)
+
+    return templates.TemplateResponse(
+        "lead_edit.html",
+        {
+            "request": request,
+            "lead": lead,
+            "current_user": current_user,
+        },
+    )
+
+@router.post("/leads-page/{lead_id}/edit")
+def edit_lead_page_post(
+    lead_id: int,
+    first_name: str = Form(...),
+    last_name: str = Form(...),
+    phone: str = Form(...),
+    email: str = Form(""),
+    city: str = Form(""),
+    state: str = Form(""),
+    source: str = Form(""),
+    interest: str = Form(""),
+    notes: str = Form(""),
+    status: str = Form(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    lead_data = LeadUpdate(
+        first_name=first_name,
+        last_name=last_name,
+        phone=phone,
+        email=email or None,
+        city=city or None,
+        state=state or None,
+        source=source or None,
+        interest=interest or None,
+        notes=notes or None,
+        status=status,
+    )
+
+    update_lead(db, lead_id, lead_data, current_user)
 
     return RedirectResponse(
         url=f"/api/v1/leads-page/{lead_id}",
