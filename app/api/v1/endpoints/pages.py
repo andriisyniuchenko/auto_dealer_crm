@@ -11,7 +11,8 @@ from app.models.user import User
 from app.services.auth_service import login_user
 from app.services.dashboard_service import get_dashboard_data
 from app.services.timeline_service import get_lead_timeline
-from app.services.deal_service import get_deals
+from app.schemas.deal import DealClose, DealCreate
+from app.services.deal_service import close_deal, get_deals, create_deal
 from app.services.lead_service import get_leads_with_salespeople
 from app.schemas.lead import LeadCreate
 from app.services.lead_service import create_lead
@@ -435,5 +436,63 @@ def update_appointment_page(
 
     return RedirectResponse(
         url="/api/v1/appointments-page",
+        status_code=303,
+    )
+
+
+@router.get("/deals-page/create/{lead_id}")
+def create_deal_page(
+    lead_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    lead = get_lead_by_id(db, lead_id, current_user)
+
+    return templates.TemplateResponse(
+        "deal_create.html",
+        {
+            "request": request,
+            "lead": lead,
+            "current_user": current_user,
+        },
+    )
+
+
+@router.post("/deals-page/create/{lead_id}")
+def create_deal_page_post(
+    lead_id: int,
+    vehicle: str = Form(...),
+    price: int = Form(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    deal_data = DealCreate(
+        lead_id=lead_id,
+        vehicle=vehicle,
+        price=price,
+    )
+
+    create_deal(db, deal_data, current_user)
+
+    return RedirectResponse(
+        url="/api/v1/deals-page",
+        status_code=303,
+    )
+
+
+@router.post("/deals-page/{deal_id}/close")
+def close_deal_page(
+    deal_id: int,
+    status: str = Form(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    deal_data = DealClose(status=status)
+
+    close_deal(db, deal_id, deal_data, current_user)
+
+    return RedirectResponse(
+        url="/api/v1/deals-page",
         status_code=303,
     )

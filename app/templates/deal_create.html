@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Create Deal{% endblock %}
+
+{% block content %}
+<h2>Create Deal for {{ lead.first_name }} {{ lead.last_name }}</h2>
+
+<form method="post" class="crm-form">
+    <label>Vehicle</label>
+    <input type="text" name="vehicle" required>
+
+    <label>Price</label>
+    <input type="number" name="price" required>
+
+    <button type="submit">Create Deal</button>
+</form>
+{% endblock %}

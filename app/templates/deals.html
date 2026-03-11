@@ -14,6 +14,7 @@
             <th>Price</th>
             <th>Status</th>
             <th>Closed At</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -34,9 +35,25 @@
             </td>
             <td>
                 {% if deal.closed_at %}
-                    {{ deal.closed_at }}
+                    {{ deal.closed_at.strftime("%Y-%m-%d %H:%M") }}
                 {% else %}
                     -
+                {% endif %}
+            </td>
+            <td>
+                {% if deal.status == "open" %}
+                <form method="post"
+                      action="/api/v1/deals-page/{{ deal.id }}/close"
+                      class="inline-status-form">
+                    <select name="status" required>
+                        <option value="sold">Sold</option>
+                        <option value="lost">Lost</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                    <button type="submit" class="save-btn">Close</button>
+                </form>
+                {% else %}
+                    —
                 {% endif %}
             </td>
         </tr>
