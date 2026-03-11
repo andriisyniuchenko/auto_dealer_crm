@@ -1,14 +1,13 @@
-from fastapi import APIRouter, Depends, Form, Request, status
+from fastapi import APIRouter, Depends, Form, Request, status, HTTPException
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_current_active_user
+from app.api.deps import get_current_active_user, require_roles
 from app.db.session import get_db
 from app.models.user import User
 from app.services.auth_service import login_user
 from app.services.dashboard_service import get_dashboard_data
-from app.services.lead_service import get_lead_by_id
 from app.services.timeline_service import get_lead_timeline
 from app.services.appointment_service import get_today_appointments
 from app.services.deal_service import get_deals
@@ -18,6 +17,13 @@ from app.services.lead_service import create_lead
 from app.services.appointment_service import create_appointment
 from app.schemas.appointment import AppointmentCreate
 from app.services.appointment_service import get_all_appointments
+from app.models.lead_salesperson import LeadSalesperson
+from app.services.lead_service import (
+    get_lead_by_id,
+    assign_salesperson_to_lead,
+    remove_salesperson_from_lead,
+)
+
 
 from datetime import datetime
 
@@ -176,6 +182,19 @@ def lead_detail_page(
 
     salespeople = [user.email for user in lead.salespeople]
 
+    assigned_salespeople = (
+        db.query(User)
+        .join(LeadSalesperson, User.id == LeadSalesperson.user_id)
+        .filter(LeadSalesperson.lead_id == lead.id)
+        .all()
+    )
+
+    all_salespeople = (
+        db.query(User)
+        .filter(User.role == "salesperson")
+        .all()
+    )
+
     return templates.TemplateResponse(
         "lead_detail.html",
         {
@@ -183,6 +202,8 @@ def lead_detail_page(
             "lead": lead,
             "timeline": timeline,
             "salespeople": salespeople,
+            "assigned_salespeople": assigned_salespeople,
+            "all_salespeople": all_salespeople,
             "current_user": current_user,
         },
     )
@@ -272,4 +293,70 @@ def appointment_create(
     return RedirectResponse(
         url=f"/api/v1/leads-page/{lead_id}",
         status_code=303
+    )
+
+
+@router.post("/leads-page/{lead_id}/assign-salesperson")
+def assign_salesperson_page(
+    request: Request,
+    lead_id: int,
+    salesperson_id: int = Form(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles("manager", "general_manager")),
+):
+    try:
+        assign_salesperson_to_lead(db, lead_id, salesperson_id)
+
+        return RedirectResponse(
+            url=f"/api/v1/leads-page/{lead_id}",
+            status_code=303,
+        )
+
+    except HTTPException as e:
+        lead = get_lead_by_id(db, lead_id, current_user)
+        timeline = get_lead_timeline(db, lead_id, current_user)
+
+        salespeople = [user.email for user in lead.salespeople]
+
+        assigned_salespeople = (
+            db.query(User)
+            .join(LeadSalesperson, User.id == LeadSalesperson.user_id)
+            .filter(LeadSalesperson.lead_id == lead.id)
+            .all()
+        )
+
+        all_salespeople = (
+            db.query(User)
+            .filter(User.role == "salesperson")
+            .all()
+        )
+
+        return templates.TemplateResponse(
+            "lead_detail.html",
+            {
+                "request": request,
+                "lead": lead,
+                "timeline": timeline,
+                "salespeople": salespeople,
+                "assigned_salespeople": assigned_salespeople,
+                "all_salespeople": all_salespeople,
+                "error_message": e.detail,
+                "current_user": current_user,
+            },
+            status_code=400,
+        )
+
+
+@router.post("/leads-page/{lead_id}/remove-salesperson/{salesperson_id}")
+def remove_salesperson_page(
+    lead_id: int,
+    salesperson_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles("manager", "general_manager")),
+):
+    remove_salesperson_from_lead(db, lead_id, salesperson_id)
+
+    return RedirectResponse(
+        url=f"/api/v1/leads-page/{lead_id}",
+        status_code=303,
     )

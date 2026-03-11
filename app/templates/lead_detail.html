@@ -29,14 +29,52 @@
         </div>
 
         <div class="lead-card">
-            <h3>Ownership</h3>
-            <p>
-                {% if salespeople %}
-                    {{ salespeople | join(", ") }}
-                {% else %}
-                    Not assigned
+            <h3>Assigned Salespeople</h3>
+
+            {% if assigned_salespeople %}
+                <ul style="padding-left: 18px;">
+                    {% for sp in assigned_salespeople %}
+                        <li class="salesperson-row">
+                            <span>{{ sp.email }}</span>
+
+                            {% if current_user.role in ["manager", "general_manager"] %}
+                            <form method="post"
+                                  action="/api/v1/leads-page/{{ lead.id }}/remove-salesperson/{{ sp.id }}"
+                                  class="inline-remove-form">
+                                <button type="submit" class="remove-btn">Remove</button>
+                            </form>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>Not assigned</p>
+            {% endif %}
+
+            {% if current_user.role in ["manager", "general_manager"] %}
+
+                {% if error_message %}
+                <div style="color: red; margin-bottom: 12px;">
+                    {{ error_message }}
+                </div>
                 {% endif %}
-            </p>
+
+                <h3>Add Salesperson</h3>
+                <form method="post"
+                      action="/api/v1/leads-page/{{ lead.id }}/assign-salesperson"
+                      class="crm-form">
+
+                    <label>Salesperson</label>
+                    <select name="salesperson_id" required>
+                        {% for sp in all_salespeople %}
+                            <option value="{{ sp.id }}">{{ sp.email }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <button type="submit">Assign Salesperson</button>
+                </form>
+
+            {% endif %}
         </div>
 
     </div>
