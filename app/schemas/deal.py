@@ -17,7 +17,7 @@ class DealResponse(BaseModel):
     status: DealStatus
     created_at: datetime
     closed_at: datetime | None = None
-    salespeople: list[DealSalesperson]
+    salespeople: list[DealSalesperson] = []
 
     class Config:
         from_attributes = True
