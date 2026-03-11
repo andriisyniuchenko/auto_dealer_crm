@@ -17,6 +17,7 @@ from app.schemas.lead import LeadCreate
 from app.services.lead_service import create_lead
 from app.services.appointment_service import create_appointment
 from app.schemas.appointment import AppointmentCreate
+from app.services.appointment_service import get_all_appointments
 
 from datetime import datetime
 
@@ -193,7 +194,9 @@ def appointments_page(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
 ):
-    appointments = get_today_appointments(db, current_user)
+    appointments = get_all_appointments(db, current_user)
+    for appointment in appointments:
+        appointment.lead_name = f"{appointment.lead.first_name} {appointment.lead.last_name}"
 
     return templates.TemplateResponse(
         "appointments.html",

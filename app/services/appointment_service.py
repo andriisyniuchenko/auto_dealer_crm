@@ -10,6 +10,8 @@ from app.services.lead_service import get_lead_by_id
 
 from fastapi import HTTPException
 from app.schemas.appointment import AppointmentUpdate
+from app.models.lead_salesperson import LeadSalesperson
+
 
 def create_appointment(
     db: Session,
@@ -66,10 +68,6 @@ def update_appointment(
     return appointment
 
 
-
-from app.models.lead_salesperson import LeadSalesperson
-
-
 def get_today_appointments(db: Session, current_user: User):
     tz = ZoneInfo("America/Los_Angeles")
 
@@ -98,6 +96,23 @@ def get_today_appointments(db: Session, current_user: User):
             Appointment.appointment_at >= start,
             Appointment.appointment_at <= end,
         )
+        .order_by(Appointment.appointment_at.asc())
+        .all()
+    )
+
+
+def get_all_appointments(db: Session, current_user: User):
+    if current_user.role.value in ["manager", "general_manager"]:
+        return (
+            db.query(Appointment)
+            .order_by(Appointment.appointment_at.asc())
+            .all()
+        )
+
+    return (
+        db.query(Appointment)
+        .join(LeadSalesperson, Appointment.lead_id == LeadSalesperson.lead_id)
+        .filter(LeadSalesperson.user_id == current_user.id)
         .order_by(Appointment.appointment_at.asc())
         .all()
     )
