@@ -116,3 +116,12 @@ This system is designed as an internal dealership CRM.
 
 Public self-registration is disabled.  
 New users can only be created by users with **manager** or **general_manager** roles.
+
+---
+
+## Tests
+
+Run tests with:
+
+```bash
+pytest
