@@ -6,18 +6,31 @@
 <div class="lead-container">
 
     <div class="lead-header">
-        <h2>{{ lead.first_name }} {{ lead.last_name }}</h2>
 
-        <span class="status-badge status-{{ lead.status }}">
-            {{ lead.status }}
-        </span>
+        <div style="display:flex; align-items:center; gap:16px;">
+            <h2>{{ lead.first_name }} {{ lead.last_name }}</h2>
 
-        <a href="/api/v1/leads-page/{{ lead.id }}/edit" class="btn btn-edit">
-            Edit Lead
-        </a>
-        <a href="/api/v1/deals-page/create/{{ lead.id }}" class="btn btn-edit">
-            Create Deal
-        </a>
+            <span class="status-badge status-{{ lead.status }}">
+                {{ lead.status }}
+            </span>
+        </div>
+
+        <div style="display:flex; gap:10px; align-items:center;">
+
+            <button class="btn btn-secondary">Call</button>
+            <button class="btn btn-secondary">Text</button>
+            <button class="btn btn-secondary">Email</button>
+
+            <a href="/api/v1/leads-page/{{ lead.id }}/edit" class="btn btn-edit">
+                Edit Lead
+            </a>
+
+            <a href="/api/v1/deals-page/create/{{ lead.id }}" class="btn btn-edit">
+                Create Deal
+            </a>
+
+        </div>
+
     </div>
 
     <div class="lead-grid">
