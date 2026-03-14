@@ -1,45 +1,74 @@
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, Form, Request, status, HTTPException
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
+from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 
-from app.schemas.appointment import AppointmentUpdate
-from app.services.appointment_service import update_appointment
-from app.api.deps import get_current_active_user, require_roles
+from app.api.deps import require_roles
+from app.core.config import settings
 from app.db.session import get_db
+from app.models.lead_salesperson import LeadSalesperson
 from app.models.user import User
+from app.schemas.appointment import AppointmentCreate, AppointmentUpdate
+from app.schemas.deal import DealClose, DealCreate
+from app.schemas.lead import LeadCreate, LeadUpdate
+from app.services.appointment_service import (
+    create_appointment,
+    get_all_appointments,
+    update_appointment,
+)
 from app.services.auth_service import login_user
 from app.services.dashboard_service import get_dashboard_data
-from app.services.timeline_service import get_lead_timeline
-from app.schemas.deal import DealClose, DealCreate
-from app.services.deal_service import close_deal, get_deals, create_deal
-from app.services.lead_service import get_leads_with_salespeople
-from app.schemas.lead import LeadCreate
-from app.services.lead_service import create_lead
-from app.services.appointment_service import create_appointment
-from app.schemas.appointment import AppointmentCreate
-from app.services.appointment_service import get_all_appointments
-from app.models.lead_salesperson import LeadSalesperson
+from app.services.deal_service import close_deal, create_deal, get_deals
 from app.services.lead_service import (
-    get_lead_by_id,
     assign_salesperson_to_lead,
+    create_lead,
+    get_lead_by_id,
+    get_leads_with_salespeople,
     remove_salesperson_from_lead,
-    update_lead
+    update_lead,
 )
-
-from app.schemas.lead import LeadUpdate
-
-
-from datetime import datetime
+from app.services.timeline_service import get_lead_timeline
 
 router = APIRouter(tags=["pages"])
-
 templates = Jinja2Templates(directory="app/templates")
+
+
+def get_current_web_user(
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    token = request.cookies.get("access_token")
+
+    if not token:
+        return RedirectResponse(url="/api/v1/login-page", status_code=303)
+
+    if token.startswith("Bearer "):
+        token = token.replace("Bearer ", "")
+
+    try:
+        payload = jwt.decode(
+            token,
+            settings.SECRET_KEY,
+            algorithms=[settings.ALGORITHM],
+        )
+        email = payload.get("sub")
+        if not email:
+            return RedirectResponse(url="/api/v1/login-page", status_code=303)
+    except JWTError:
+        return RedirectResponse(url="/api/v1/login-page", status_code=303)
+
+    user = db.query(User).filter(User.email == email).first()
+    if not user:
+        return RedirectResponse(url="/api/v1/login-page", status_code=303)
+
+    return user
 
 
 @router.get("/login-page")
 def login_page(request: Request):
-
     token = request.cookies.get("access_token")
 
     if token:
@@ -70,6 +99,7 @@ def login_page_post(
             {
                 "request": request,
                 "error": "Invalid email or password",
+                "current_user": None,
             },
             status_code=401,
         )
@@ -86,12 +116,22 @@ def login_page_post(
     return response
 
 
+@router.get("/logout")
+def logout():
+    response = RedirectResponse(url="/api/v1/login-page", status_code=302)
+    response.delete_cookie("access_token")
+    return response
+
+
 @router.get("/dashboard-page")
 def dashboard_page(
     request: Request,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user),
+    current_user=Depends(get_current_web_user),
 ):
+    if isinstance(current_user, RedirectResponse):
+        return current_user
+
     dashboard = get_dashboard_data(db, current_user)
 
     return templates.TemplateResponse(
@@ -104,18 +144,15 @@ def dashboard_page(
     )
 
 
-@router.get("/logout")
-def logout():
-    response = RedirectResponse(url="/api/v1/login-page", status_code=302)
-    response.delete_cookie("access_token")
-    return response
-
 @router.get("/leads-page")
 def leads_page(
     request: Request,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user),
+    current_user=Depends(get_current_web_user),
 ):
+    if isinstance(current_user, RedirectResponse):
+        return current_user
+
     leads = get_leads_with_salespeople(db, current_user)
 
     return templates.TemplateResponse(
@@ -128,12 +165,14 @@ def leads_page(
     )
 
 
-
 @router.get("/leads-page/create")
 def create_lead_page(
     request: Request,
-    current_user: User = Depends(get_current_active_user),
+    current_user=Depends(get_current_web_user),
 ):
+    if isinstance(current_user, RedirectResponse):
+        return current_user
+
     return templates.TemplateResponse(
         "lead_create.html",
         {
@@ -156,8 +195,11 @@ def create_lead_page_post(
     interest: str = Form(None),
     notes: str = Form(None),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user),
+    current_user=Depends(get_current_web_user),
 ):
+    if isinstance(current_user, RedirectResponse):
+        return current_user
+
     lead_data = LeadCreate(
         first_name=first_name,
         last_name=last_name,
@@ -180,8 +222,11 @@ def lead_detail_page(
     lead_id: int,
     request: Request,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user),
+    current_user=Depends(get_current_web_user),
 ):
+    if isinstance(current_user, RedirectResponse):
+        return current_user
+
     lead = get_lead_by_id(db, lead_id, current_user)
     timeline = get_lead_timeline(db, lead_id, current_user)
 
@@ -218,8 +263,11 @@ def lead_detail_page(
 def appointments_page(
     request: Request,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user),
+    current_user=Depends(get_current_web_user),
 ):
+    if isinstance(current_user, RedirectResponse):
+        return current_user
+
     appointments = get_all_appointments(db, current_user)
     for appointment in appointments:
         appointment.lead_name = f"{appointment.lead.first_name} {appointment.lead.last_name}"
@@ -238,8 +286,11 @@ def appointments_page(
 def deals_page(
     request: Request,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user),
+    current_user=Depends(get_current_web_user),
 ):
+    if isinstance(current_user, RedirectResponse):
+        return current_user
+
     deals = get_deals(db, current_user)
 
     return templates.TemplateResponse(
@@ -256,8 +307,11 @@ def deals_page(
 def appointment_create_page(
     request: Request,
     lead_id: int,
-    current_user: User = Depends(get_current_active_user),
+    current_user=Depends(get_current_web_user),
 ):
+    if isinstance(current_user, RedirectResponse):
+        return current_user
+
     return templates.TemplateResponse(
         "appointment_create.html",
         {
@@ -276,8 +330,11 @@ def appointment_create(
     appointment_time: str = Form(...),
     notes: str = Form(None),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user),
+    current_user=Depends(get_current_web_user),
 ):
+    if isinstance(current_user, RedirectResponse):
+        return current_user
+
     appointment_datetime = datetime.fromisoformat(
         f"{appointment_date}T{appointment_time}"
     )
@@ -285,7 +342,7 @@ def appointment_create(
     appointment_data = AppointmentCreate(
         appointment_at=appointment_datetime,
         notes=notes,
-        status="scheduled"
+        status="scheduled",
     )
 
     create_appointment(
@@ -297,7 +354,7 @@ def appointment_create(
 
     return RedirectResponse(
         url=f"/api/v1/leads-page/{lead_id}",
-        status_code=303
+        status_code=303,
     )
 
 
@@ -372,8 +429,11 @@ def edit_lead_page(
     lead_id: int,
     request: Request,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user),
+    current_user=Depends(get_current_web_user),
 ):
+    if isinstance(current_user, RedirectResponse):
+        return current_user
+
     lead = get_lead_by_id(db, lead_id, current_user)
 
     return templates.TemplateResponse(
@@ -384,6 +444,7 @@ def edit_lead_page(
             "current_user": current_user,
         },
     )
+
 
 @router.post("/leads-page/{lead_id}/edit")
 def edit_lead_page_post(
@@ -399,8 +460,11 @@ def edit_lead_page_post(
     notes: str = Form(""),
     status: str = Form(...),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user),
+    current_user=Depends(get_current_web_user),
 ):
+    if isinstance(current_user, RedirectResponse):
+        return current_user
+
     lead_data = LeadUpdate(
         first_name=first_name,
         last_name=last_name,
@@ -428,8 +492,11 @@ def update_appointment_page(
     appointment_id: int,
     status: str = Form(...),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user),
+    current_user=Depends(get_current_web_user),
 ):
+    if isinstance(current_user, RedirectResponse):
+        return current_user
+
     appointment_data = AppointmentUpdate(status=status)
 
     update_appointment(db, appointment_id, appointment_data, current_user)
@@ -445,8 +512,11 @@ def create_deal_page(
     lead_id: int,
     request: Request,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user),
+    current_user=Depends(get_current_web_user),
 ):
+    if isinstance(current_user, RedirectResponse):
+        return current_user
+
     lead = get_lead_by_id(db, lead_id, current_user)
 
     return templates.TemplateResponse(
@@ -465,8 +535,11 @@ def create_deal_page_post(
     vehicle: str = Form(...),
     price: int = Form(...),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user),
+    current_user=Depends(get_current_web_user),
 ):
+    if isinstance(current_user, RedirectResponse):
+        return current_user
+
     deal_data = DealCreate(
         lead_id=lead_id,
         vehicle=vehicle,
@@ -486,8 +559,11 @@ def close_deal_page(
     deal_id: int,
     status: str = Form(...),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user),
+    current_user=Depends(get_current_web_user),
 ):
+    if isinstance(current_user, RedirectResponse):
+        return current_user
+
     deal_data = DealClose(status=status)
 
     close_deal(db, deal_id, deal_data, current_user)
