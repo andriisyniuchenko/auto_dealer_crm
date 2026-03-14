@@ -213,6 +213,9 @@ def get_leads_with_salespeople(db: Session, current_user: User):
     result = []
 
     for lead in leads:
+        if lead.status != "active":
+            continue
+
         salespeople = (
             db.query(User)
             .join(LeadSalesperson, User.id == LeadSalesperson.user_id)
@@ -234,3 +237,30 @@ def get_leads_with_salespeople(db: Session, current_user: User):
         })
 
     return result
+
+
+def get_inactive_leads_with_salespeople(db: Session, current_user: User):
+    query = (
+        db.query(Lead)
+        .filter(Lead.status.in_(["sold", "lost", "archived"]))
+        .order_by(Lead.id.desc())
+    )
+
+    if current_user.role.value not in ["manager", "general_manager"]:
+        query = (
+            query.join(LeadSalesperson, Lead.id == LeadSalesperson.lead_id)
+            .filter(LeadSalesperson.user_id == current_user.id)
+        )
+
+    leads = query.all()
+
+    for lead in leads:
+        salespeople = (
+            db.query(User)
+            .join(LeadSalesperson, User.id == LeadSalesperson.user_id)
+            .filter(LeadSalesperson.lead_id == lead.id)
+            .all()
+        )
+        lead.salespeople_display = [user.email for user in salespeople]
+
+    return leads

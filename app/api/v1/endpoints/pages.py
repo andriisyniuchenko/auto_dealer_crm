@@ -30,7 +30,7 @@ from app.services.lead_service import (
     get_lead_by_id,
     get_leads_with_salespeople,
     remove_salesperson_from_lead,
-    update_lead,
+    update_lead, get_inactive_leads_with_salespeople,
 )
 from app.services.timeline_service import get_lead_timeline
 from app.services.activity_service import create_activity
@@ -733,4 +733,25 @@ def email_lead_page_post(
     return RedirectResponse(
         url=f"/api/v1/leads-page/{lead_id}",
         status_code=303,
+    )
+
+
+@router.get("/inactive-leads-page")
+def inactive_leads_page(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_web_user),
+):
+    if isinstance(current_user, RedirectResponse):
+        return current_user
+
+    leads = get_inactive_leads_with_salespeople(db, current_user)
+
+    return templates.TemplateResponse(
+        "inactive_leads.html",
+        {
+            "request": request,
+            "leads": leads,
+            "current_user": current_user,
+        },
     )
