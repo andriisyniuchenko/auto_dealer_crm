@@ -119,5 +119,23 @@
         <p>{{ lead.notes or "-" }}</p>
     </div>
 
+    <div class="lead-notes">
+        <h3>Timeline</h3>
+
+        {% if timeline %}
+            <ul style="list-style: none; padding-left: 0; margin: 0;">
+                {% for item in timeline %}
+                    <li style="padding: 12px 0; border-bottom: 1px solid #e5e7eb;">
+                        <strong>{{ item.type }}</strong><br>
+                        <small>{{ item.timestamp.strftime("%Y-%m-%d %H:%M") }}</small><br>
+                        <span>{{ item.content or "-" }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No timeline items yet.</p>
+        {% endif %}
+    </div>
+
 </div>
 {% endblock %}
