@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from app.api.deps import require_roles
 from app.core.config import settings
 from app.db.session import get_db
+from app.models.enums import ActivityType
 from app.models.lead_salesperson import LeadSalesperson
 from app.models.user import User
 from app.schemas.activity import ActivityCreate
@@ -619,6 +620,107 @@ def call_lead_page_post(
     activity_data = ActivityCreate(
         type="call",
         content=f"Call result: {result}. {notes}".strip(),
+    )
+
+    create_activity(
+        db=db,
+        lead_id=lead_id,
+        activity_data=activity_data,
+        current_user=current_user,
+    )
+
+    return RedirectResponse(
+        url=f"/api/v1/leads-page/{lead_id}",
+        status_code=303,
+    )
+
+
+@router.get("/leads-page/{lead_id}/text")
+def text_lead_page(
+    lead_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_web_user),
+):
+    if isinstance(current_user, RedirectResponse):
+        return current_user
+
+    lead = get_lead_by_id(db, lead_id, current_user)
+
+    return templates.TemplateResponse(
+        "text_lead.html",
+        {
+            "request": request,
+            "lead": lead,
+            "current_user": current_user,
+        },
+    )
+
+
+@router.post("/leads-page/{lead_id}/text")
+def text_lead_page_post(
+    lead_id: int,
+    message: str = Form(...),
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_web_user),
+):
+    if isinstance(current_user, RedirectResponse):
+        return current_user
+
+    activity_data = ActivityCreate(
+        type=ActivityType.sms,
+        content=message,
+    )
+
+    create_activity(
+        db=db,
+        lead_id=lead_id,
+        activity_data=activity_data,
+        current_user=current_user,
+    )
+
+    return RedirectResponse(
+        url=f"/api/v1/leads-page/{lead_id}",
+        status_code=303,
+    )
+
+
+@router.get("/leads-page/{lead_id}/email")
+def email_lead_page(
+    lead_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_web_user),
+):
+    if isinstance(current_user, RedirectResponse):
+        return current_user
+
+    lead = get_lead_by_id(db, lead_id, current_user)
+
+    return templates.TemplateResponse(
+        "email_lead.html",
+        {
+            "request": request,
+            "lead": lead,
+            "current_user": current_user,
+        },
+    )
+
+
+@router.post("/leads-page/{lead_id}/email")
+def email_lead_page_post(
+    lead_id: int,
+    subject: str = Form(...),
+    message: str = Form(...),
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_web_user),
+):
+    if isinstance(current_user, RedirectResponse):
+        return current_user
+
+    activity_data = ActivityCreate(
+        type="email",
+        content=f"Subject: {subject}. Message: {message}",
     )
 
     create_activity(

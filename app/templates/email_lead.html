@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Send Email{% endblock %}
+
+{% block content %}
+<h2>Send Email — {{ lead.first_name }} {{ lead.last_name }}</h2>
+
+<form method="post" class="crm-form">
+    <label>Subject</label>
+    <input type="text" name="subject" required>
+
+    <label>Message</label>
+    <textarea name="message" required></textarea>
+
+    <button type="submit">Save Email Activity</button>
+</form>
+{% endblock %}
