@@ -31,6 +31,8 @@ from app.services.lead_service import (
     update_lead,
 )
 from app.services.timeline_service import get_lead_timeline
+from app.services.activity_service import create_activity
+
 
 router = APIRouter(tags=["pages"])
 templates = Jinja2Templates(directory="app/templates")
@@ -42,8 +44,16 @@ def get_current_web_user(
 ):
     token = request.cookies.get("access_token")
 
+    def redirect_to_login():
+        response = RedirectResponse(
+            url="/api/v1/login-page",
+            status_code=303,
+        )
+        response.delete_cookie("access_token")
+        return response
+
     if not token:
-        return RedirectResponse(url="/api/v1/login-page", status_code=303)
+        return redirect_to_login()
 
     if token.startswith("Bearer "):
         token = token.replace("Bearer ", "")
@@ -55,25 +65,23 @@ def get_current_web_user(
             algorithms=[settings.ALGORITHM],
         )
         email = payload.get("sub")
+
         if not email:
-            return RedirectResponse(url="/api/v1/login-page", status_code=303)
+            return redirect_to_login()
+
     except JWTError:
-        return RedirectResponse(url="/api/v1/login-page", status_code=303)
+        return redirect_to_login()
 
     user = db.query(User).filter(User.email == email).first()
+
     if not user:
-        return RedirectResponse(url="/api/v1/login-page", status_code=303)
+        return redirect_to_login()
 
     return user
 
 
 @router.get("/login-page")
 def login_page(request: Request):
-    token = request.cookies.get("access_token")
-
-    if token:
-        return RedirectResponse(url="/api/v1/dashboard-page")
-
     return templates.TemplateResponse(
         "login.html",
         {
@@ -570,5 +578,56 @@ def close_deal_page(
 
     return RedirectResponse(
         url="/api/v1/deals-page",
+        status_code=303,
+    )
+
+
+@router.get("/leads-page/{lead_id}/call")
+def call_lead_page(
+    lead_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_web_user),
+):
+    if isinstance(current_user, RedirectResponse):
+        return current_user
+
+    lead = get_lead_by_id(db, lead_id, current_user)
+
+    return templates.TemplateResponse(
+        "call_lead.html",
+        {
+            "request": request,
+            "lead": lead,
+            "current_user": current_user,
+        },
+    )
+
+
+@router.post("/leads-page/{lead_id}/call")
+def call_lead_page_post(
+    lead_id: int,
+    result: str = Form(...),
+    notes: str = Form(""),
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_web_user),
+):
+    if isinstance(current_user, RedirectResponse):
+        return current_user
+
+    create_activity(
+        db=db,
+        lead_id=lead_id,
+        activity_type="call",
+        content=f"Call result: {result}. {notes}".strip(),
+        current_user=current_user,
+    )
+
+    lead = get_lead_by_id(db, lead_id, current_user)
+    lead.last_contacted_at = datetime.utcnow()
+    db.commit()
+
+    return RedirectResponse(
+        url=f"/api/v1/leads-page/{lead_id}",
         status_code=303,
     )

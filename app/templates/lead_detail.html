@@ -15,20 +15,12 @@
             </span>
         </div>
 
-        <div style="display:flex; gap:10px; align-items:center;">
-
-            <button class="btn btn-secondary">Call</button>
-            <button class="btn btn-secondary">Text</button>
-            <button class="btn btn-secondary">Email</button>
-
-            <a href="/api/v1/leads-page/{{ lead.id }}/edit" class="btn btn-edit">
-                Edit Lead
-            </a>
-
-            <a href="/api/v1/deals-page/create/{{ lead.id }}" class="btn btn-edit">
-                Create Deal
-            </a>
-
+        <div class="lead-actions">
+            <a href="/api/v1/leads-page/{{ lead.id }}/call" class="btn btn-edit">Call</a>
+            <a href="#" class="btn btn-edit">Text</a>
+            <a href="#" class="btn btn-edit">Email</a>
+            <a href="/api/v1/leads-page/{{ lead.id }}/edit" class="btn btn-edit">Edit Lead</a>
+            <a href="/api/v1/deals-page/create/{{ lead.id }}" class="btn btn-edit">Create Deal</a>
         </div>
 
     </div>
