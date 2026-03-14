@@ -11,6 +11,7 @@ from app.core.config import settings
 from app.db.session import get_db
 from app.models.lead_salesperson import LeadSalesperson
 from app.models.user import User
+from app.schemas.activity import ActivityCreate
 from app.schemas.appointment import AppointmentCreate, AppointmentUpdate
 from app.schemas.deal import DealClose, DealCreate
 from app.schemas.lead import LeadCreate, LeadUpdate
@@ -615,17 +616,17 @@ def call_lead_page_post(
     if isinstance(current_user, RedirectResponse):
         return current_user
 
+    activity_data = ActivityCreate(
+        type="call",
+        content=f"Call result: {result}. {notes}".strip(),
+    )
+
     create_activity(
         db=db,
         lead_id=lead_id,
-        activity_type="call",
-        content=f"Call result: {result}. {notes}".strip(),
+        activity_data=activity_data,
         current_user=current_user,
     )
-
-    lead = get_lead_by_id(db, lead_id, current_user)
-    lead.last_contacted_at = datetime.utcnow()
-    db.commit()
 
     return RedirectResponse(
         url=f"/api/v1/leads-page/{lead_id}",
