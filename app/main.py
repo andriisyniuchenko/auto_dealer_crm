@@ -4,6 +4,11 @@ from app.db import models_registry
 from fastapi.staticfiles import StaticFiles
 from app.core.bootstrap import create_first_admin
 from app.db.session import SessionLocal
+from fastapi.responses import RedirectResponse
+from fastapi import status
+from starlette.exceptions import HTTPException as StarletteHTTPException
+from fastapi import Request
+
 
 app = FastAPI(
     title="Auto Dealer CRM API",
@@ -24,3 +29,15 @@ def startup():
     db = SessionLocal()
     create_first_admin(db)
     db.close()
+
+
+@app.get("/", include_in_schema=False)
+def root():
+    return RedirectResponse(url="/api/v1/login-page", status_code=status.HTTP_302_FOUND)
+
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+    if exc.status_code == 404:
+        return RedirectResponse(url="/api/v1/login-page")
+    raise exc
