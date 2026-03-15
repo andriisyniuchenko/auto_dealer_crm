@@ -44,6 +44,10 @@ make down
 make reset
 ```
 
+## After startup, open:
+
+🌐 http://localhost:8000  
+
 ## Demo Users
 Manager:
 - email: manager@test.com
