@@ -1,127 +1,134 @@
-# Auto Dealer CRM API
+# 🚗 Auto Dealer CRM
 
-Backend CRM system for a car dealership built with **FastAPI** and
-**PostgreSQL**.
+A role-based CRM system designed for car dealerships to manage leads, deals, appointments, and sales activity.
 
-The system manages leads, sales activity, appointments, and deals while
-supporting **role-based access control** for dealership staff.
+This project demonstrates real-world backend architecture, business logic implementation, and production-ready deployment practices using FastAPI and PostgreSQL.
 
 ---
 
-## Tech Stack
+## ✨ Features
 
-- Python 3.14
+- Role-based access system (Manager / Salesperson)
+- Lead lifecycle management
+- Deal tracking with shared ownership (50/50 logic)
+- Activity timeline (calls, SMS, email, notes, visits)
+- Appointment scheduling
+- Dashboard with real business metrics
+- Active vs inactive lead separation
+- Server-side rendered UI (no frontend framework)
+- Dockerized environment
+- Database migrations with Alembic
+- Demo data seeding for testing
+
+---
+
+## 🧠 Business Logic Highlights
+
+This project focuses on real dealership workflows, not just CRUD.
+
+Implemented logic includes:
+
+- Shared lead ownership between salespeople
+- Partial deal credit (e.g. 2.5 deals)
+- Lead activity timeline affecting contact status
+- Inactive lead archival system
+- Manager-only user creation
+- Sales performance tracking via deals
+
+---
+
+## 🏗 Tech Stack
+
+Backend:
 - FastAPI
-- PostgreSQL
 - SQLAlchemy
 - Alembic
+- PostgreSQL
+
+Infrastructure:
+- Docker
+- Docker Compose
+
+Security:
 - JWT Authentication
+- Role-based authorization
+- Password hashing
+
+Rendering:
+- Jinja2 Templates
 
 ---
 
-## Roles
+## 🐳 Running with Docker
 
-**General Manager**
-- Full system access
+### 1️⃣ Create environment file
 
-**Manager**
-- Lead assignment
-- Sales oversight
-- Access to all leads and statistics
+Create `.env.docker`:
 
-**Finance Manager**
-- Finance-related workflows
+DATABASE_URL=postgresql://postgres:1234@db:5432/auto_dealer_crm  
+SECRET_KEY=supersecretkey  
+ALGORITHM=HS256  
+ACCESS_TOKEN_EXPIRE_MINUTES=60  
 
-**Salesperson**
-- Access to own leads
-- Access to shared leads (50/50)
-- Appointments, notes, activities, and deals
+### 2️⃣ Build and start containers
 
----
+docker compose up --build
 
-## Features
+### 3️⃣ Run migrations
 
--   Manager-controlled user registration
--   JWT authentication
--   Role-based access control
+Already executed automatically on startup.
 
-### Lead Management
+### 4️⃣ Seed demo data (optional)
 
--   Lead creation
--   Lead assignment to salespeople
--   Shared lead ownership (50/50)
--   Lead status management
--   Lead timeline (notes, activities, appointments, deals)
--   Stale lead detection
+Run manually:
 
-### Sales Activity
-
--   Notes history
--   Activity tracking
--   Last contacted tracking
-
-### Appointments
-
--   Appointment creation
--   Appointment status updates
--   Today's appointments view
--   Calendar endpoint
-
-### Deals
-
--   Deal creation
--   Deal status management
--   Split deals (0.5 / 1.0 credit)
--   Deal statistics per salesperson
-
-### Dashboard
-
--   Total leads
--   Active leads
--   Stale leads
--   Appointments today
--   Open deals
--   Sold deals
----
-
-## Local Development
-
-```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload
-```
+docker exec -it auto_dealer_crm_web python seed_demo_data.py
 
 ---
 
-## Project Structure
+## 👤 Demo Users
 
-```text
-app/
-├── api
-├── services
-├── models
-├── schemas
-├── db
-├── core
-└── tasks
-```
+After seeding:
 
----
+Manager:  
+manager@test.com  
+123456  
 
-## Access Control
+Sales:  
+sales1@test.com  
+123456  
 
-This system is designed as an internal dealership CRM.
-
-Public self-registration is disabled.  
-New users can only be created by users with **manager** or **general_manager** roles.
+sales2@test.com  
+123456  
 
 ---
 
-## Tests
+## 📊 Dashboard Metrics
 
-Run tests with:
+Dashboard includes:
 
-```bash
-pytest
+- Active leads count
+- Appointments today
+- Open deals
+- Sold deals (with shared deal weighting)
+
+Inactive leads are handled in a separate workflow.
+
+---
+
+## 🧩 Project Purpose
+
+This project was built to demonstrate:
+
+- Production-like backend structure
+- Business domain modeling
+- Complex relational logic
+- Deployment readiness
+- Clean service-layer architecture
+
+---
+
+## 📌 Notes
+
+This is a backend-focused project.  
+Frontend intentionally minimal to highlight backend architecture and system design.
