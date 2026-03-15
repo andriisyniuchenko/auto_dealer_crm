@@ -19,3 +19,4 @@ alembic/versions/*.pyc
 
 # Logs
 *.log
+.env.*
