@@ -71,6 +71,7 @@ Manager:
 Sales:
 - sales1@test.com
 - sales2@test.com
+- password: 123456
 
 ## Notes
 - Seed is manual (not automatic)
