@@ -140,7 +140,7 @@ def test_manager_can_assign_second_salesperson_but_not_duplicate():
         json={"salesperson_id": sales2_user_id},
         headers=auth_headers(manager_token),
     )
-    assert duplicate_assign.status_code == 400
+    assert duplicate_assign.status_code == 409
 
 
 def test_salesperson_cannot_assign_lead(

@@ -30,7 +30,7 @@ def create_deal(db: Session, deal: DealCreate, current_user: User):
 
     existing_deal = db.query(Deal).filter(Deal.lead_id == deal.lead_id).first()
     if existing_deal:
-        raise HTTPException(status_code=400, detail="Deal already exists for this lead")
+        raise HTTPException(status_code=409, detail="Deal already exists for this lead")
 
     new_deal = Deal(
         lead_id=deal.lead_id,

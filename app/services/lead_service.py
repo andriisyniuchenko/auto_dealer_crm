@@ -71,7 +71,7 @@ def assign_salesperson_to_lead(db: Session, lead_id: int, salesperson_id: int):
         .first()
     )
     if existing_link:
-        raise HTTPException(status_code=400, detail="Salesperson already assigned to this lead")
+        raise HTTPException(status_code=409, detail="Salesperson already assigned to this lead")
 
     assigned_count = (
         db.query(LeadSalesperson)
@@ -79,7 +79,7 @@ def assign_salesperson_to_lead(db: Session, lead_id: int, salesperson_id: int):
         .count()
     )
     if assigned_count >= 2:
-        raise HTTPException(status_code=400, detail="Lead cannot have more than 2 salespeople")
+        raise HTTPException(status_code=409, detail="Lead cannot have more than 2 salespeople")
 
     new_link = LeadSalesperson(
         lead_id=lead_id,

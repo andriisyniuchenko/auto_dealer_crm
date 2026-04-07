@@ -60,7 +60,7 @@ def test_cannot_create_duplicate_deal_for_same_lead(
         headers=auth_headers(sales_token),
     )
 
-    assert duplicate_deal.status_code == 400
+    assert duplicate_deal.status_code == 409
 
 
 def test_shared_deal_counts_as_half_for_each_salesperson(
