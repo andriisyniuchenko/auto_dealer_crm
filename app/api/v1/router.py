@@ -9,8 +9,8 @@ from app.api.v1.endpoints import (
     deals,
     stats,
     dashboard,
-    pages
 )
+from app.api.v1 import pages
 
 
 api_router = APIRouter()
