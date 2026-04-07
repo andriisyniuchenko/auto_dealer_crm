@@ -7,7 +7,7 @@ from app.models.lead_salesperson import LeadSalesperson
 from app.models.user import User
 from app.schemas.deal import DealCreate, DealClose
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 
@@ -69,7 +69,7 @@ def close_deal(db: Session, deal_id: int, deal_data: DealClose, current_user: Us
         raise HTTPException(status_code=400, detail="Invalid close status")
 
     deal.status = deal_data.status.value
-    deal.closed_at = datetime.utcnow()
+    deal.closed_at = datetime.now(timezone.utc)
 
     lead = db.query(Lead).filter(Lead.id == deal.lead_id).first()
     if lead:

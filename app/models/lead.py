@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import Column, DateTime, Integer, String, Text
 from sqlalchemy.orm import relationship
@@ -29,7 +29,7 @@ class Lead(Base):
 
     status = Column(String, nullable=False, default=LeadStatus.active.value)
 
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
     last_contacted_at = Column(DateTime, nullable=True)
 
     salespeople = relationship(
