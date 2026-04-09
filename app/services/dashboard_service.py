@@ -66,9 +66,9 @@ def get_dashboard_data(db: Session, current_user: User):
         .count()
     )
 
-    sold_deals = 0.0
-    sold_deals_query = (
-        db.query(Deal)
+    # Single query: get all sold deals for this salesperson with salespeople count per lead
+    sold_deals_rows = (
+        db.query(Deal.id, Deal.lead_id, LeadSalesperson.user_id)
         .join(LeadSalesperson, Deal.lead_id == LeadSalesperson.lead_id)
         .filter(
             LeadSalesperson.user_id == current_user.id,
@@ -77,17 +77,22 @@ def get_dashboard_data(db: Session, current_user: User):
         .all()
     )
 
-    for deal in sold_deals_query:
-        salespeople_count = (
-            db.query(LeadSalesperson)
-            .filter(LeadSalesperson.lead_id == deal.lead_id)
-            .count()
-        )
+    lead_ids = [row.lead_id for row in sold_deals_rows]
 
-        if salespeople_count == 2:
-            sold_deals += 0.5
-        else:
-            sold_deals += 1.0
+    # Count salespeople per lead in one query
+    from sqlalchemy import func
+    counts = (
+        db.query(LeadSalesperson.lead_id, func.count(LeadSalesperson.user_id).label("cnt"))
+        .filter(LeadSalesperson.lead_id.in_(lead_ids))
+        .group_by(LeadSalesperson.lead_id)
+        .all()
+    )
+    salespeople_count_map = {row.lead_id: row.cnt for row in counts}
+
+    sold_deals = sum(
+        1 / salespeople_count_map.get(row.lead_id, 1)
+        for row in sold_deals_rows
+    )
 
     return {
         "active_leads": active_leads,
