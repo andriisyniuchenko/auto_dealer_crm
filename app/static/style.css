@@ -354,66 +354,151 @@ main {
 
 /* ── SALESPEOPLE ──────────────────────────────────────────────────────────── */
 
-.sp-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.sp-row {
+.sp-item {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 8px 10px;
-    border-radius: 8px;
-    margin-bottom: 4px;
+    gap: 10px;
+    padding: 9px 12px;
     background: #f8fafc;
     border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin-bottom: 6px;
+}
+
+.sp-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #dbeafe;
+    color: #1d4ed8;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }
 
 .sp-email {
+    flex: 1;
     font-size: 14px;
     color: #374151;
     font-weight: 500;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-.section-divider {
+.sp-remove-form {
+    display: flex;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+    flex-shrink: 0;
+}
+
+.sp-trash-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
     border: none;
-    border-top: 1px solid #e2e8f0;
-    margin: 16px 0;
+    padding: 4px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #94a3b8;
+    transition: color 0.15s, background 0.15s;
+    flex-shrink: 0;
+}
+
+.sp-trash-btn:hover {
+    color: #ef4444;
+    background: #fee2e2;
+}
+
+.sp-remove-btn {
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    background: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+}
+
+.sp-remove-btn:hover {
+    background: #fecaca;
 }
 
 .subsection-label {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
     color: #94a3b8;
     text-transform: uppercase;
-    letter-spacing: 0.4px;
-    margin: 0 0 10px;
+    letter-spacing: 0.5px;
+    margin: 0 0 8px;
 }
 
-.add-sp-row {
+.sp-add-form {
     display: flex;
     gap: 8px;
     align-items: center;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
 }
 
-.add-sp-select {
+.sp-select {
     flex: 1;
-    padding: 7px 10px;
+    min-width: 0;
+    padding: 8px 10px;
     font-size: 14px;
     border: 1px solid #cbd5e1;
     border-radius: 8px;
     background: white;
     color: #1e293b;
     font-family: inherit;
-    min-width: 0;
 }
 
-.add-sp-select:focus {
+.sp-select:focus {
     outline: none;
     border-color: #2563eb;
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.sp-add-btn {
+    padding: 8px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.sp-add-btn:hover {
+    background: #1d4ed8;
+}
+
+.sp-error {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #b91c1c;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 10px;
 }
 
 /* ── INLINE CARD FORM (appointment, etc.) ─────────────────────────────────── */

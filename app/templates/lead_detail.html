@@ -61,41 +61,45 @@
         <div class="lead-card">
             <p class="lead-card-title">Assigned Salespeople</p>
 
+            {% if error_message %}
+            <div class="sp-error">⚠ {{ error_message }}</div>
+            {% endif %}
+
             {% if assigned_salespeople %}
-            <ul class="sp-list">
                 {% for sp in assigned_salespeople %}
-                <li class="sp-row">
+                <div class="sp-item">
                     <span class="sp-email">{{ sp.email }}</span>
                     {% if current_user.role in ["manager", "general_manager"] %}
-                    <form method="post" action="/api/v1/leads-page/{{ lead.id }}/remove-salesperson/{{ sp.id }}" style="margin:0">
-                        <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                    <form method="post" action="/api/v1/leads-page/{{ lead.id }}/remove-salesperson/{{ sp.id }}" class="sp-remove-form">
+                        <button type="submit" class="sp-trash-btn" title="Remove">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+                                <path d="M10 11v6"></path>
+                                <path d="M14 11v6"></path>
+                                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+                            </svg>
+                        </button>
                     </form>
                     {% endif %}
-                </li>
+                </div>
                 {% endfor %}
-            </ul>
             {% else %}
-            <p class="text-muted">No salespeople assigned.</p>
+                <p class="text-muted">No salespeople assigned.</p>
             {% endif %}
 
             {% if current_user.role in ["manager", "general_manager"] %}
-            <hr class="section-divider">
-
-            {% if error_message %}
-            <div class="alert-error">⚠ {{ error_message }}</div>
-            {% endif %}
-
-            <p class="subsection-label">Add Salesperson</p>
-            <form method="post" action="/api/v1/leads-page/{{ lead.id }}/assign-salesperson" style="margin:0">
-                <div class="add-sp-row">
-                    <select name="salesperson_id" required class="add-sp-select">
+            <div class="sp-add-section">
+                <p class="subsection-label">Assign Salesperson</p>
+                <form method="post" action="/api/v1/leads-page/{{ lead.id }}/assign-salesperson" class="sp-add-form">
+                    <select name="salesperson_id" required class="sp-select">
                         {% for sp in all_salespeople %}
                         <option value="{{ sp.id }}">{{ sp.email }}</option>
                         {% endfor %}
                     </select>
-                    <button type="submit" class="btn btn-primary btn-sm">Assign</button>
-                </div>
-            </form>
+                    <button type="submit" class="sp-add-btn">Assign</button>
+                </form>
+            </div>
             {% endif %}
         </div>
 
