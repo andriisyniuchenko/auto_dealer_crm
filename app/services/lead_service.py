@@ -37,17 +37,27 @@ def create_lead(db: Session, lead: LeadCreate, user_id: int):
 
     return new_lead
 
-def get_leads(db: Session, current_user: User):
+def get_leads(db: Session, current_user: User, page: int = 1, limit: int = 20):
     if current_user.role.value in ["manager", "general_manager"]:
-        return db.query(Lead).order_by(Lead.created_at.desc()).all()
+        query = db.query(Lead).order_by(Lead.created_at.desc())
+    else:
+        query = (
+            db.query(Lead)
+            .join(LeadSalesperson)
+            .filter(LeadSalesperson.user_id == current_user.id)
+            .order_by(Lead.created_at.desc())
+        )
 
-    return (
-        db.query(Lead)
-        .join(LeadSalesperson)
-        .filter(LeadSalesperson.user_id == current_user.id)
-        .order_by(Lead.created_at.desc())
-        .all()
-    )
+    total = query.count()
+    items = query.offset((page - 1) * limit).limit(limit).all()
+
+    return {
+        "items": items,
+        "total": total,
+        "page": page,
+        "pages": -(-total // limit),  # ceiling division
+        "limit": limit,
+    }
 
 
 def assign_salesperson_to_lead(db: Session, lead_id: int, salesperson_id: int):

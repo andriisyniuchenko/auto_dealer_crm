@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.api.deps import require_roles
 from app.models.user import User
 from app.schemas.deal import DealCreate, DealResponse, DealClose
+from app.schemas.pagination import PaginatedResponse
 from app.services.deal_service import create_deal, close_deal, get_deals, get_deal_by_id
 
 router = APIRouter(
@@ -30,12 +31,14 @@ def close_deal_endpoint(
     return close_deal(db, deal_id, deal_data, current_user)
 
 
-@router.get("/my", response_model=list[DealResponse])
+@router.get("/my", response_model=PaginatedResponse[DealResponse])
 def get_my_deals(
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1, le=100),
     db: Session = Depends(get_db),
     current_user: User = Depends(require_roles("salesperson", "manager", "general_manager")),
 ):
-    return get_deals(db, current_user)
+    return get_deals(db, current_user, page=page, limit=limit)
 
 
 @router.get("/{deal_id}", response_model=DealResponse)

@@ -38,15 +38,27 @@ def create_appointment(
     return new_appointment
 
 
-def get_appointments_by_lead(db: Session, lead_id: int, current_user: User):
+def get_appointments_by_lead(
+    db: Session, lead_id: int, current_user: User, page: int = 1, limit: int = 20
+):
     lead = get_lead_by_id(db, lead_id, current_user)
 
-    return (
+    query = (
         db.query(Appointment)
         .filter(Appointment.lead_id == lead.id)
         .order_by(Appointment.appointment_at.desc())
-        .all()
     )
+
+    total = query.count()
+    items = query.offset((page - 1) * limit).limit(limit).all()
+
+    return {
+        "items": items,
+        "total": total,
+        "page": page,
+        "pages": -(-total // limit),
+        "limit": limit,
+    }
 
 
 def update_appointment(

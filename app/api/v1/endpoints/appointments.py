@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.api.deps import require_roles
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.appointment import AppointmentCreate, AppointmentResponse, AppointmentUpdate
+from app.schemas.pagination import PaginatedResponse
 from app.services.appointment_service import create_appointment, get_appointments_by_lead, update_appointment
 
 router = APIRouter(prefix="/leads/{lead_id}/appointments", tags=["appointments"])
@@ -20,13 +21,15 @@ def create_lead_appointment(
     return create_appointment(db, lead_id, appointment_data, current_user)
 
 
-@router.get("/", response_model=list[AppointmentResponse])
+@router.get("/", response_model=PaginatedResponse[AppointmentResponse])
 def read_lead_appointments(
     lead_id: int,
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1, le=100),
     db: Session = Depends(get_db),
     current_user: User = Depends(require_roles("manager", "general_manager", "salesperson")),
 ):
-    return get_appointments_by_lead(db, lead_id, current_user)
+    return get_appointments_by_lead(db, lead_id, current_user, page=page, limit=limit)
 
 
 @router.patch("/{appointment_id}", response_model=AppointmentResponse)

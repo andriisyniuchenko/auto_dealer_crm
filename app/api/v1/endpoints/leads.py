@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
 from app.schemas.lead import LeadCreate, LeadResponse, LeadAssign, LeadUpdate, StaleLeadResponse
+from app.schemas.pagination import PaginatedResponse
 from app.services.lead_service import create_lead, get_leads, assign_salesperson_to_lead, get_lead_by_id, update_lead, \
     get_stale_leads, remove_salesperson_from_lead
 from app.api.deps import require_roles
@@ -22,12 +23,14 @@ def create_new_lead(
     return create_lead(db, lead, current_user.id)
 
 
-@router.get("/", response_model=list[LeadResponse])
+@router.get("/", response_model=PaginatedResponse[LeadResponse])
 def read_leads(
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1, le=100),
     db: Session = Depends(get_db),
     current_user: User = Depends(require_roles("manager", "general_manager", "salesperson")),
 ):
-    return get_leads(db, current_user)
+    return get_leads(db, current_user, page=page, limit=limit)
 
 
 @router.post("/{lead_id}/assign")

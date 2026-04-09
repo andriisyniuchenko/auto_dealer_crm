@@ -84,17 +84,26 @@ def close_deal(db: Session, deal_id: int, deal_data: DealClose, current_user: Us
     return deal
 
 
-def get_deals(db: Session, current_user: User):
-
+def get_deals(db: Session, current_user: User, page: int = 1, limit: int = 20):
     if current_user.role.value in ["manager", "general_manager"]:
-        return db.query(Deal).all()
+        query = db.query(Deal)
+    else:
+        query = (
+            db.query(Deal)
+            .join(LeadSalesperson, Deal.lead_id == LeadSalesperson.lead_id)
+            .filter(LeadSalesperson.user_id == current_user.id)
+        )
 
-    return (
-        db.query(Deal)
-        .join(LeadSalesperson, Deal.lead_id == LeadSalesperson.lead_id)
-        .filter(LeadSalesperson.user_id == current_user.id)
-        .all()
-    )
+    total = query.count()
+    items = query.offset((page - 1) * limit).limit(limit).all()
+
+    return {
+        "items": items,
+        "total": total,
+        "page": page,
+        "pages": -(-total // limit),
+        "limit": limit,
+    }
 
 
 def get_deal_by_id(db: Session, deal_id: int, current_user: User):
