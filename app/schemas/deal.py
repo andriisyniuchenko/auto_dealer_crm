@@ -9,6 +9,14 @@ class DealCreate(BaseModel):
     price: int
 
 
+class DealSalesperson(BaseModel):
+    id: int
+    email: str
+
+    class Config:
+        from_attributes = True
+
+
 class DealResponse(BaseModel):
     id: int
     lead_id: int
@@ -25,11 +33,3 @@ class DealResponse(BaseModel):
 
 class DealClose(BaseModel):
     status: DealStatus
-
-
-class DealSalesperson(BaseModel):
-    id: int
-    email: str
-
-    class Config:
-        from_attributes = True
