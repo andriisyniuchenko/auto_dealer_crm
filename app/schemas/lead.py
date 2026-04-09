@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from app.models.enums import LeadStatus
 from datetime import datetime
 
@@ -32,6 +32,8 @@ class LeadAssign(BaseModel):
 
 
 class LeadUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     first_name: str | None = None
     last_name: str | None = None
     phone: str | None = None
