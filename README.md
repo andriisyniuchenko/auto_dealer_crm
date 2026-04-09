@@ -64,7 +64,7 @@ app/
 
 ---
 
-## Quick Start
+## Quick Start (Docker)
 
 ### Prerequisites
 
@@ -72,13 +72,16 @@ app/
 
 ### 1. Create environment file
 
-Create `.env.docker` in the project root:
+```bash
+cp .env.example .env.docker
+```
+
+Edit `.env.docker` with your values:
 
 ```env
 DATABASE_URL=postgresql://postgres:yourpassword@db:5432/auto_dealer_crm
 TEST_DATABASE_URL=postgresql://postgres:yourpassword@db:5432/auto_dealer_crm_test
-
-SECRET_KEY=your-secret-key
+SECRET_KEY=your-secret-key-min-32-chars
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=60
 
@@ -103,6 +106,38 @@ make demo
 
 ```
 http://localhost:8000
+```
+
+---
+
+## Local Development (without Docker)
+
+### Prerequisites
+
+- Python 3.12+
+- PostgreSQL running locally
+
+### 1. Set up environment
+
+```bash
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+### 2. Configure environment variables
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` with your local database credentials.
+
+### 3. Run migrations and start
+
+```bash
+alembic upgrade head
+uvicorn app.main:app --reload
 ```
 
 ---
