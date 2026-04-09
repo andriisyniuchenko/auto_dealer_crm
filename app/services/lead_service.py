@@ -218,7 +218,16 @@ def remove_salesperson_from_lead(db: Session, lead_id: int, salesperson_id: int)
 
 
 def get_leads_with_salespeople(db: Session, current_user: User):
-    leads = get_leads(db, current_user)
+    if current_user.role.value in ["manager", "general_manager"]:
+        leads = db.query(Lead).order_by(Lead.created_at.desc()).all()
+    else:
+        leads = (
+            db.query(Lead)
+            .join(LeadSalesperson)
+            .filter(LeadSalesperson.user_id == current_user.id)
+            .order_by(Lead.created_at.desc())
+            .all()
+        )
 
     result = []
 
