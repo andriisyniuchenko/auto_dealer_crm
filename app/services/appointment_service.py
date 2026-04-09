@@ -60,6 +60,19 @@ def update_appointment(
     if not appointment:
         raise HTTPException(status_code=404, detail="Appointment not found")
 
+    is_manager = current_user.role.value in ["manager", "general_manager"]
+    is_assigned = (
+        db.query(LeadSalesperson)
+        .filter(
+            LeadSalesperson.lead_id == appointment.lead_id,
+            LeadSalesperson.user_id == current_user.id,
+        )
+        .first()
+    )
+
+    if not is_manager and not is_assigned:
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+
     appointment.status = appointment_data.status.value
 
     db.commit()
