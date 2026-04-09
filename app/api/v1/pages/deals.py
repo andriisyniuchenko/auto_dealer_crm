@@ -20,7 +20,7 @@ def deals_page(
     if isinstance(current_user, RedirectResponse):
         return current_user
 
-    deals = get_deals(db, current_user)
+    deals = get_deals(db, current_user)["items"]
 
     return templates.TemplateResponse(
         "deals.html",
