@@ -49,6 +49,7 @@ def login_page_post(
         key="access_token",
         value=f"Bearer {token['access_token']}",
         httponly=True,
+        samesite="strict",
     )
     return response
 
