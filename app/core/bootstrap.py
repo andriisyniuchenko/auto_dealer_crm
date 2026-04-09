@@ -1,6 +1,11 @@
+import logging
+
 from sqlalchemy.orm import Session
+
 from app.models.user import User
 from app.core.security import hash_password
+
+logger = logging.getLogger(__name__)
 
 
 def create_first_admin(db: Session):
@@ -15,4 +20,4 @@ def create_first_admin(db: Session):
         )
         db.add(admin)
         db.commit()
-        print("First admin created")
+        logger.info("First admin created")
