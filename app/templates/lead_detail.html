@@ -1,83 +1,96 @@
 {% extends "base.html" %}
 
-{% block title %}Lead Details{% endblock %}
+{% block title %}{{ lead.first_name }} {{ lead.last_name }}{% endblock %}
 
 {% block content %}
 <div class="lead-container">
 
     <!-- Header -->
     <div class="lead-header">
-        <div style="display:flex; align-items:center; gap:16px;">
+        <div class="lead-header-title">
             <h2>{{ lead.first_name }} {{ lead.last_name }}</h2>
             <span class="status-badge status-{{ lead.status }}">{{ lead.status }}</span>
         </div>
-
         <div class="lead-actions">
-            <a href="/api/v1/leads-page/{{ lead.id }}/call"  class="btn btn-ghost">Call</a>
-            <a href="/api/v1/leads-page/{{ lead.id }}/text"  class="btn btn-ghost">Text</a>
-            <a href="/api/v1/leads-page/{{ lead.id }}/email" class="btn btn-ghost">Email</a>
-            <a href="/api/v1/leads-page/{{ lead.id }}/edit"  class="btn btn-primary">Edit Lead</a>
-            <a href="/api/v1/deals-page/create/{{ lead.id }}" class="btn btn-primary">Create Deal</a>
+            <a href="/api/v1/leads-page/{{ lead.id }}/call"  class="btn btn-ghost btn-sm">📞 Call</a>
+            <a href="/api/v1/leads-page/{{ lead.id }}/text"  class="btn btn-ghost btn-sm">💬 Text</a>
+            <a href="/api/v1/leads-page/{{ lead.id }}/email" class="btn btn-ghost btn-sm">✉️ Email</a>
+            <a href="/api/v1/leads-page/{{ lead.id }}/edit"  class="btn btn-primary btn-sm">Edit Lead</a>
+            <a href="/api/v1/deals-page/create/{{ lead.id }}" class="btn btn-secondary btn-sm">Create Deal</a>
         </div>
     </div>
 
-    <!-- Info grid -->
+    <!-- Info cards -->
     <div class="lead-grid">
 
+        <!-- Contact -->
         <div class="lead-card">
-            <h3>Contact</h3>
-            <p><strong>Phone:</strong> {{ lead.phone }}</p>
-            <p><strong>Email:</strong> {{ lead.email or "-" }}</p>
-            <p><strong>City:</strong> {{ lead.city or "-" }}</p>
-            <p><strong>State:</strong> {{ lead.state or "-" }}</p>
+            <p class="lead-card-title">Contact</p>
+            <div class="info-row">
+                <span class="info-label">Phone</span>
+                <span class="info-value">{{ lead.phone }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Email</span>
+                <span class="info-value">{{ lead.email or "—" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">City</span>
+                <span class="info-value">{{ lead.city or "—" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">State</span>
+                <span class="info-value">{{ lead.state or "—" }}</span>
+            </div>
         </div>
 
+        <!-- Lead Info -->
         <div class="lead-card">
-            <h3>Lead Info</h3>
-            <p><strong>Source:</strong> {{ lead.source or "-" }}</p>
-            <p><strong>Interest:</strong> {{ lead.interest or "-" }}</p>
+            <p class="lead-card-title">Lead Info</p>
+            <div class="info-row">
+                <span class="info-label">Source</span>
+                <span class="info-value">{{ lead.source or "—" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Interest</span>
+                <span class="info-value">{{ lead.interest or "—" }}</span>
+            </div>
         </div>
 
         <!-- Assigned Salespeople -->
         <div class="lead-card">
-            <h3>Assigned Salespeople</h3>
+            <p class="lead-card-title">Assigned Salespeople</p>
 
             {% if assigned_salespeople %}
-                <ul class="salesperson-list">
-                    {% for sp in assigned_salespeople %}
-                    <li class="salesperson-row">
-                        <span class="salesperson-email">{{ sp.email }}</span>
-
-                        {% if current_user.role in ["manager", "general_manager"] %}
-                        <form method="post"
-                              action="/api/v1/leads-page/{{ lead.id }}/remove-salesperson/{{ sp.id }}"
-                              class="inline-form">
-                            <button type="submit" class="btn btn-danger btn-sm">Remove</button>
-                        </form>
-                        {% endif %}
-                    </li>
-                    {% endfor %}
-                </ul>
+            <ul class="sp-list">
+                {% for sp in assigned_salespeople %}
+                <li class="sp-row">
+                    <span class="sp-email">{{ sp.email }}</span>
+                    {% if current_user.role in ["manager", "general_manager"] %}
+                    <form method="post" action="/api/v1/leads-page/{{ lead.id }}/remove-salesperson/{{ sp.id }}" style="margin:0">
+                        <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                    </form>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
             {% else %}
-                <p class="text-muted">No salespeople assigned yet.</p>
+            <p class="text-muted">No salespeople assigned.</p>
             {% endif %}
 
             {% if current_user.role in ["manager", "general_manager"] %}
-            <div class="card-divider"></div>
-
-            <h4>Add Salesperson</h4>
+            <hr class="section-divider">
 
             {% if error_message %}
-            <div class="alert-error">{{ error_message }}</div>
+            <div class="alert-error">⚠ {{ error_message }}</div>
             {% endif %}
 
-            <form method="post"
-                  action="/api/v1/leads-page/{{ lead.id }}/assign-salesperson"
-                  class="inline-form">
-                <div class="input-row">
-                    <select name="salesperson_id" required class="select-inline">
+            <p class="subsection-label">Add Salesperson</p>
+            <form method="post" action="/api/v1/leads-page/{{ lead.id }}/assign-salesperson" style="margin:0">
+                <div class="add-sp-row">
+                    <select name="salesperson_id" required class="add-sp-select">
                         {% for sp in all_salespeople %}
-                            <option value="{{ sp.id }}">{{ sp.email }}</option>
+                        <option value="{{ sp.id }}">{{ sp.email }}</option>
                         {% endfor %}
                     </select>
                     <button type="submit" class="btn btn-primary btn-sm">Assign</button>
@@ -86,62 +99,53 @@
             {% endif %}
         </div>
 
-        <!-- Create Appointment -->
+        <!-- Schedule Appointment -->
         <div class="lead-card">
-            <h3>Schedule Appointment</h3>
+            <p class="lead-card-title">Schedule Appointment</p>
 
-            <form method="post"
-                  action="/api/v1/appointments/create/{{ lead.id }}"
-                  class="inline-form">
-
-                <div class="field-group">
-                    <label>Date</label>
-                    <input type="date" name="appointment_date" required>
+            <form method="post" action="/api/v1/appointments/create/{{ lead.id }}" style="margin:0">
+                <div class="card-form-field">
+                    <label class="card-form-label">Date</label>
+                    <input type="date" name="appointment_date" required class="card-form-input">
                 </div>
-
-                <div class="field-group">
-                    <label>Time</label>
-                    <input type="time" name="appointment_time" required>
+                <div class="card-form-field">
+                    <label class="card-form-label">Time</label>
+                    <input type="time" name="appointment_time" required class="card-form-input">
                 </div>
-
-                <div class="field-group">
-                    <label>Notes</label>
-                    <textarea name="notes" rows="3"></textarea>
+                <div class="card-form-field">
+                    <label class="card-form-label">Notes</label>
+                    <textarea name="notes" class="card-form-input"></textarea>
                 </div>
-
-                <button type="submit" class="btn btn-primary" style="width:100%;">
-                    Create Appointment
-                </button>
-
+                <button type="submit" class="btn btn-primary btn-full">Create Appointment</button>
             </form>
         </div>
 
     </div>
 
     <!-- Notes -->
-    <div class="lead-notes">
-        <h3>Notes</h3>
-        <p>{{ lead.notes or "-" }}</p>
+    <div class="section-card">
+        <p class="section-card-title">Notes</p>
+        <p class="notes-text">{{ lead.notes or "—" }}</p>
     </div>
 
     <!-- Timeline -->
-    <div class="lead-notes">
-        <h3>Timeline</h3>
-
+    <div class="section-card">
+        <p class="section-card-title">Timeline</p>
         {% if timeline %}
-            <ul class="timeline-list">
-                {% for item in timeline %}
-                <li class="timeline-item">
-                    <div class="timeline-meta">
-                        <strong>{{ item.type }}</strong>
-                        <small>{{ item.timestamp.strftime("%Y-%m-%d %H:%M") }}</small>
-                    </div>
-                    <span>{{ item.content or "-" }}</span>
-                </li>
-                {% endfor %}
-            </ul>
+        <ul class="timeline-list">
+            {% for item in timeline %}
+            <li class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-body">
+                    <span class="timeline-type">{{ item.type }}</span>
+                    <span class="timeline-time">{{ item.timestamp.strftime("%b %d, %Y · %H:%M") }}</span>
+                    <p class="timeline-content">{{ item.content or "—" }}</p>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
         {% else %}
-            <p class="text-muted">No timeline items yet.</p>
+        <p class="text-muted">No activity yet.</p>
         {% endif %}
     </div>
 

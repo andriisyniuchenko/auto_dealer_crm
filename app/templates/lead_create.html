@@ -3,36 +3,47 @@
 {% block title %}Create Lead{% endblock %}
 
 {% block content %}
-<h2>Create Lead</h2>
+<div class="form-page">
+    <h2>Create Lead</h2>
 
-<form method="post" action="/api/v1/leads-page/create">
-    <label>First Name</label>
-    <input type="text" name="first_name" required>
-
-    <label>Last Name</label>
-    <input type="text" name="last_name" required>
-
-    <label>Phone</label>
-    <input type="text" name="phone" required>
-
-    <label>Email</label>
-    <input type="email" name="email">
-
-    <label>City</label>
-    <input type="text" name="city">
-
-    <label>State</label>
-    <input type="text" name="state">
-
-    <label>Source</label>
-    <input type="text" name="source">
-
-    <label>Interest</label>
-    <input type="text" name="interest">
-
-    <label>Notes</label>
-    <input type="text" name="notes">
-
-    <button type="submit">Create Lead</button>
-</form>
+    <form method="post" action="/api/v1/leads-page/create" style="margin:0;padding:0;background:none;box-shadow:none;border-radius:0;">
+        <div class="form-field">
+            <label>First Name *</label>
+            <input type="text" name="first_name" required>
+        </div>
+        <div class="form-field">
+            <label>Last Name *</label>
+            <input type="text" name="last_name" required>
+        </div>
+        <div class="form-field">
+            <label>Phone *</label>
+            <input type="text" name="phone" required>
+        </div>
+        <div class="form-field">
+            <label>Email</label>
+            <input type="email" name="email">
+        </div>
+        <div class="form-field">
+            <label>City</label>
+            <input type="text" name="city">
+        </div>
+        <div class="form-field">
+            <label>State</label>
+            <input type="text" name="state">
+        </div>
+        <div class="form-field">
+            <label>Source</label>
+            <input type="text" name="source" placeholder="e.g. Walk-in, Online, Referral">
+        </div>
+        <div class="form-field">
+            <label>Interest</label>
+            <input type="text" name="interest" placeholder="e.g. Subaru Crosstrek 2024">
+        </div>
+        <div class="form-field">
+            <label>Notes</label>
+            <textarea name="notes"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full">Create Lead</button>
+    </form>
+</div>
 {% endblock %}
