@@ -34,6 +34,7 @@ def read_lead_appointments(
 
 @router.patch("/{appointment_id}", response_model=AppointmentResponse)
 def update_lead_appointment(
+    lead_id: int,
     appointment_id: int,
     appointment_data: AppointmentUpdate,
     db: Session = Depends(get_db),

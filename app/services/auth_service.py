@@ -1,10 +1,11 @@
+from fastapi import HTTPException
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app.core.security import hash_password, verify_password, create_access_token
 from app.models.user import User
 from app.schemas.user import UserCreate
-from app.core.security import hash_password
 
-from app.core.security import verify_password, create_access_token
 
 def create_user(db: Session, user: UserCreate):
     new_user = User(
@@ -14,9 +15,13 @@ def create_user(db: Session, user: UserCreate):
     )
 
     db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=409, detail="Email already registered")
 
+    db.refresh(new_user)
     return new_user
 
 def authenticate_user(db: Session, email: str, password: str):

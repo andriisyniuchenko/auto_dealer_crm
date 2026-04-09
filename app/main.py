@@ -68,6 +68,6 @@ def root():
 
 @app.exception_handler(StarletteHTTPException)
 async def http_exception_handler(request: Request, exc: StarletteHTTPException):
-    if exc.status_code == 404:
+    if exc.status_code == 404 and "text/html" in request.headers.get("accept", ""):
         return RedirectResponse(url="/api/v1/login-page")
-    raise exc
+    return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})

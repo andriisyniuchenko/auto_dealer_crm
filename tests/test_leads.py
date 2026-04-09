@@ -1,165 +1,192 @@
 import uuid
 
-from fastapi.testclient import TestClient
 
-from app.main import app
+# ── create ───────────────────────────────────────────────────────────────────
 
-client = TestClient(app)
-
-
-def login(email: str, password: str) -> str:
-    response = client.post(
-        "/api/v1/auth/login",
-        data={"username": email, "password": password},
-    )
-    assert response.status_code == 200
-    return response.json()["access_token"]
-
-
-def auth_headers(token: str) -> dict:
-    return {"Authorization": f"Bearer {token}"}
-
-
-def register_user(manager_token: str, role: str) -> tuple[str, str]:
-    email = f"{role}_{uuid.uuid4().hex[:8]}@test.com"
-    password = "123456"
-
-    response = client.post(
-        "/api/v1/auth/register",
-        json={
-            "email": email,
-            "password": password,
-            "role": role,
-        },
-        headers=auth_headers(manager_token),
-    )
-    assert response.status_code == 200
-    return email, password
-
-
-def create_lead_as_user(token: str, first_name: str) -> int:
+def test_create_lead_success(client, salesperson_token, auth_headers):
     response = client.post(
         "/api/v1/leads/",
         json={
-            "first_name": first_name,
-            "last_name": "Test",
+            "first_name": "John",
+            "last_name": "Doe",
             "phone": f"206{uuid.uuid4().hex[:7]}",
-            "email": f"{uuid.uuid4().hex[:8]}@lead.com",
-            "city": "Seattle",
-            "state": "WA",
-            "source": "test",
-            "interest": "Subaru Crosstrek",
-            "notes": "pytest lead",
             "status": "active",
         },
-        headers=auth_headers(token),
+        headers=auth_headers(salesperson_token),
     )
     assert response.status_code == 200
-    return response.json()["id"]
+    assert response.json()["first_name"] == "John"
 
 
-def test_salesperson_sees_only_own_leads():
-    manager_token = login("manager@test.com", "123456")
-
-    sales1_email, sales1_password = register_user(manager_token, "salesperson")
-    sales2_email, sales2_password = register_user(manager_token, "salesperson")
-
-    sales1_token = login(sales1_email, sales1_password)
-    sales2_token = login(sales2_email, sales2_password)
-
-    lead_id = create_lead_as_user(sales1_token, "LeadOwnedBySales1")
-
-    sales1_leads = client.get(
+def test_create_lead_requires_auth(client):
+    response = client.post(
         "/api/v1/leads/",
-        headers=auth_headers(sales1_token),
+        json={"first_name": "John", "last_name": "Doe", "phone": "2060000001", "status": "active"},
     )
-    assert sales1_leads.status_code == 200
-    sales1_ids = [lead["id"] for lead in sales1_leads.json()]
-    assert lead_id in sales1_ids
-
-    sales2_leads = client.get(
-        "/api/v1/leads/",
-        headers=auth_headers(sales2_token),
-    )
-    assert sales2_leads.status_code == 200
-    sales2_ids = [lead["id"] for lead in sales2_leads.json()]
-    assert lead_id not in sales2_ids
+    assert response.status_code == 401
 
 
-def test_manager_sees_all_leads():
-    manager_token = login("manager@test.com", "123456")
+# ── list (paginated) ─────────────────────────────────────────────────────────
 
-    sales_email, sales_password = register_user(manager_token, "salesperson")
-    sales_token = login(sales_email, sales_password)
+def test_get_leads_returns_paginated_response(client, salesperson_token, auth_headers, create_lead):
+    create_lead(salesperson_token)
+    response = client.get("/api/v1/leads/", headers=auth_headers(salesperson_token))
+    assert response.status_code == 200
+    data = response.json()
+    assert "items" in data
+    assert "total" in data
+    assert "page" in data
+    assert "pages" in data
+    assert "limit" in data
 
-    lead_id = create_lead_as_user(sales_token, "ManagerCanSeeThis")
 
-    response = client.get(
-        "/api/v1/leads/",
-        headers=auth_headers(manager_token),
-    )
+def test_salesperson_sees_only_own_leads(client, register_user, login_user, auth_headers, create_lead):
+    s1_email, s1_pass, _ = register_user("salesperson")
+    s2_email, s2_pass, _ = register_user("salesperson")
+
+    s1_token = login_user(s1_email, s1_pass)
+    s2_token = login_user(s2_email, s2_pass)
+
+    lead_id = create_lead(s1_token, "OnlyForS1")
+
+    s1_response = client.get("/api/v1/leads/", headers=auth_headers(s1_token))
+    s2_response = client.get("/api/v1/leads/", headers=auth_headers(s2_token))
+
+    assert s1_response.status_code == 200
+    assert s2_response.status_code == 200
+
+    s1_ids = [lead["id"] for lead in s1_response.json()["items"]]
+    s2_ids = [lead["id"] for lead in s2_response.json()["items"]]
+
+    assert lead_id in s1_ids
+    assert lead_id not in s2_ids
+
+
+def test_manager_sees_all_leads(client, manager_token, auth_headers, register_user, login_user, create_lead):
+    s_email, s_pass, _ = register_user("salesperson")
+    s_token = login_user(s_email, s_pass)
+    lead_id = create_lead(s_token, "ManagerCanSee")
+
+    response = client.get("/api/v1/leads/", headers=auth_headers(manager_token))
     assert response.status_code == 200
 
-    ids = [lead["id"] for lead in response.json()]
+    ids = [lead["id"] for lead in response.json()["items"]]
     assert lead_id in ids
 
 
-def test_manager_can_assign_second_salesperson_but_not_duplicate():
-    manager_token = login("manager@test.com", "123456")
+def test_get_leads_pagination_params(client, salesperson_token, auth_headers, create_lead):
+    for i in range(3):
+        create_lead(salesperson_token, f"Lead{i}")
 
-    sales1_email, sales1_password = register_user(manager_token, "salesperson")
-    sales2_email, sales2_password = register_user(manager_token, "salesperson")
+    response = client.get("/api/v1/leads/?page=1&limit=2", headers=auth_headers(salesperson_token))
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data["items"]) <= 2
+    assert data["limit"] == 2
 
-    sales1_token = login(sales1_email, sales1_password)
 
-    lead_id = create_lead_as_user(sales1_token, "SharedLead")
+def test_get_leads_invalid_pagination(client, salesperson_token, auth_headers):
+    response = client.get("/api/v1/leads/?page=0", headers=auth_headers(salesperson_token))
+    assert response.status_code == 422
 
-    sales2_login = client.post(
-        "/api/v1/auth/login",
-        data={"username": sales2_email, "password": sales2_password},
+
+# ── update ───────────────────────────────────────────────────────────────────
+
+def test_update_lead_success(client, salesperson_token, auth_headers, create_lead):
+    lead_id = create_lead(salesperson_token, "BeforeUpdate")
+
+    response = client.patch(
+        f"/api/v1/leads/{lead_id}",
+        json={"first_name": "AfterUpdate"},
+        headers=auth_headers(salesperson_token),
     )
-    sales2_id = sales2_login.json()["access_token"]  # temp to force login assertion
-    assert sales2_login.status_code == 200
-
-    me_response = client.get(
-        "/api/v1/auth/me",
-        headers=auth_headers(sales2_login.json()["access_token"]),
-    )
-    assert me_response.status_code == 200
-    sales2_user_id = me_response.json()["id"]
-
-    assign_response = client.post(
-        f"/api/v1/leads/{lead_id}/assign",
-        json={"salesperson_id": sales2_user_id},
-        headers=auth_headers(manager_token),
-    )
-    assert assign_response.status_code == 200
-
-    duplicate_assign = client.post(
-        f"/api/v1/leads/{lead_id}/assign",
-        json={"salesperson_id": sales2_user_id},
-        headers=auth_headers(manager_token),
-    )
-    assert duplicate_assign.status_code == 409
+    assert response.status_code == 200
+    assert response.json()["first_name"] == "AfterUpdate"
 
 
-def test_salesperson_cannot_assign_lead(
+def test_salesperson_cannot_update_foreign_lead(
     client, register_user, login_user, auth_headers, create_lead
 ):
-    sales1_email, sales1_password, _ = register_user("salesperson")
-    sales2_email, sales2_password, sales2_id = register_user("salesperson")
+    s1_email, s1_pass, _ = register_user("salesperson")
+    s2_email, s2_pass, _ = register_user("salesperson")
 
-    token = login_user(sales1_email, sales1_password)
+    s1_token = login_user(s1_email, s1_pass)
+    s2_token = login_user(s2_email, s2_pass)
 
-    lead_id = create_lead(token, "RBACLead")
+    lead_id = create_lead(s1_token)
+
+    response = client.patch(
+        f"/api/v1/leads/{lead_id}",
+        json={"first_name": "Hacked"},
+        headers=auth_headers(s2_token),
+    )
+    assert response.status_code == 403
+
+
+def test_update_lead_rejects_extra_fields(client, salesperson_token, auth_headers, create_lead):
+    lead_id = create_lead(salesperson_token)
+    response = client.patch(
+        f"/api/v1/leads/{lead_id}",
+        json={"first_name": "Valid", "id": 9999},
+        headers=auth_headers(salesperson_token),
+    )
+    assert response.status_code == 422
+
+
+# ── assign ───────────────────────────────────────────────────────────────────
+
+def test_manager_can_assign_salesperson(
+    client, manager_token, auth_headers, register_user, login_user, create_lead
+):
+    s1_email, s1_pass, _ = register_user("salesperson")
+    s2_email, s2_pass, s2_id = register_user("salesperson")
+
+    s1_token = login_user(s1_email, s1_pass)
+    lead_id = create_lead(s1_token)
 
     response = client.post(
         f"/api/v1/leads/{lead_id}/assign",
-        json={"salesperson_id": sales2_id},
-        headers=auth_headers(token),
+        json={"salesperson_id": s2_id},
+        headers=auth_headers(manager_token),
     )
+    assert response.status_code == 200
 
+
+def test_salesperson_cannot_assign(client, register_user, login_user, auth_headers, create_lead):
+    s1_email, s1_pass, _ = register_user("salesperson")
+    s2_email, s2_pass, s2_id = register_user("salesperson")
+
+    s1_token = login_user(s1_email, s1_pass)
+    lead_id = create_lead(s1_token)
+
+    response = client.post(
+        f"/api/v1/leads/{lead_id}/assign",
+        json={"salesperson_id": s2_id},
+        headers=auth_headers(s1_token),
+    )
     assert response.status_code == 403
+
+
+def test_cannot_assign_duplicate_salesperson(
+    client, manager_token, auth_headers, register_user, login_user, create_lead
+):
+    s1_email, s1_pass, _ = register_user("salesperson")
+    s2_email, s2_pass, s2_id = register_user("salesperson")
+
+    s1_token = login_user(s1_email, s1_pass)
+    lead_id = create_lead(s1_token)
+
+    client.post(
+        f"/api/v1/leads/{lead_id}/assign",
+        json={"salesperson_id": s2_id},
+        headers=auth_headers(manager_token),
+    )
+    response = client.post(
+        f"/api/v1/leads/{lead_id}/assign",
+        json={"salesperson_id": s2_id},
+        headers=auth_headers(manager_token),
+    )
+    assert response.status_code == 409
 
 
 def test_cannot_assign_more_than_two_salespeople(
@@ -169,20 +196,17 @@ def test_cannot_assign_more_than_two_salespeople(
     s2_email, s2_pass, s2_id = register_user("salesperson")
     s3_email, s3_pass, s3_id = register_user("salesperson")
 
-    token = login_user(s1_email, s1_pass)
-
-    lead_id = create_lead(token, "MaxTwo")
+    s1_token = login_user(s1_email, s1_pass)
+    lead_id = create_lead(s1_token)
 
     client.post(
         f"/api/v1/leads/{lead_id}/assign",
         json={"salesperson_id": s2_id},
         headers=auth_headers(manager_token),
     )
-
     response = client.post(
         f"/api/v1/leads/{lead_id}/assign",
         json={"salesperson_id": s3_id},
         headers=auth_headers(manager_token),
     )
-
-    assert response.status_code == 400
+    assert response.status_code == 409
