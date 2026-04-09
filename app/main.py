@@ -1,18 +1,26 @@
-from fastapi import FastAPI
-from app.api.v1.router import api_router
-from app.db import models_registry
-from fastapi.staticfiles import StaticFiles
-from app.core.bootstrap import create_first_admin
-from app.db.session import SessionLocal
+from fastapi import FastAPI, Request, status
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
-from fastapi import status
+from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
-from fastapi import Request
+
+from app.api.v1.router import api_router
+from app.core.bootstrap import create_first_admin
+from app.db import models_registry
+from app.db.session import SessionLocal
 
 
 app = FastAPI(
     title="Auto Dealer CRM API",
     version="1.0.0",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
