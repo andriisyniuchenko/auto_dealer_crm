@@ -190,17 +190,42 @@ def assign_salesperson_page(
 
 @router.post("/leads-page/{lead_id}/remove-salesperson/{salesperson_id}")
 def remove_salesperson_page(
+    request: Request,
     lead_id: int,
     salesperson_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_roles("manager", "general_manager")),
 ):
-    remove_salesperson_from_lead(db, lead_id, salesperson_id)
+    try:
+        remove_salesperson_from_lead(db, lead_id, salesperson_id)
+        return RedirectResponse(url=f"/api/v1/leads-page/{lead_id}", status_code=303)
 
-    return RedirectResponse(
-        url=f"/api/v1/leads-page/{lead_id}",
-        status_code=303,
-    )
+    except HTTPException as e:
+        lead = get_lead_by_id(db, lead_id, current_user)
+        timeline = get_lead_timeline(db, lead_id, current_user)
+
+        assigned_salespeople = (
+            db.query(User)
+            .join(LeadSalesperson, User.id == LeadSalesperson.user_id)
+            .filter(LeadSalesperson.lead_id == lead.id)
+            .all()
+        )
+        all_salespeople = db.query(User).filter(User.role == "salesperson").all()
+
+        return templates.TemplateResponse(
+            "lead_detail.html",
+            {
+                "request": request,
+                "lead": lead,
+                "timeline": timeline,
+                "salespeople": [u.email for u in assigned_salespeople],
+                "assigned_salespeople": assigned_salespeople,
+                "all_salespeople": all_salespeople,
+                "error_message": e.detail,
+                "current_user": current_user,
+            },
+            status_code=400,
+        )
 
 
 @router.get("/leads-page/{lead_id}/edit")
