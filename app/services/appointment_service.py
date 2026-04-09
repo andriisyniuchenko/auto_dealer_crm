@@ -1,4 +1,4 @@
-from datetime import datetime, time
+from datetime import datetime, time, timezone
 from zoneinfo import ZoneInfo
 
 from sqlalchemy.orm import Session
@@ -30,7 +30,7 @@ def create_appointment(
 
     db.add(new_appointment)
 
-    lead.last_contacted_at = datetime.utcnow()
+    lead.last_contacted_at = datetime.now(timezone.utc)
 
     db.commit()
     db.refresh(new_appointment)

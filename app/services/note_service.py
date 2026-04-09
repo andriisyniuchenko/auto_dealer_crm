@@ -5,7 +5,7 @@ from app.models.user import User
 from app.schemas.note import NoteCreate
 from app.services.lead_service import get_lead_by_id
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 def create_note(db: Session, lead_id: int, note_data: NoteCreate, current_user: User):
     lead = get_lead_by_id(db, lead_id, current_user)
@@ -18,7 +18,7 @@ def create_note(db: Session, lead_id: int, note_data: NoteCreate, current_user: 
 
     db.add(new_note)
 
-    lead.last_contacted_at = datetime.utcnow()
+    lead.last_contacted_at = datetime.now(timezone.utc)
 
     db.commit()
     db.refresh(new_note)

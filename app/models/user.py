@@ -1,5 +1,5 @@
 from enum import Enum
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import Boolean, Column, DateTime, Enum as SAEnum, Integer, String
 from sqlalchemy.orm import relationship
@@ -26,7 +26,7 @@ class User(Base):
 
     is_active = Column(Boolean, nullable=False, default=True)
 
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
 
     leads = relationship(
         "Lead",

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy.orm import Session
 
@@ -20,7 +20,7 @@ def create_activity(db: Session, lead_id: int, activity_data: ActivityCreate, cu
 
     db.add(new_activity)
 
-    lead.last_contacted_at = datetime.utcnow()
+    lead.last_contacted_at = datetime.now(timezone.utc)
 
     db.commit()
     db.refresh(new_activity)
