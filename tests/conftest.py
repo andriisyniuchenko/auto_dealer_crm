@@ -149,7 +149,7 @@ def create_lead(client, auth_headers):
             json={
                 "first_name": first_name,
                 "last_name": "Lead",
-                "phone": f"206{uuid.uuid4().hex[:7]}",
+                "phone": f"206{uuid.uuid4().int % 10_000_000:07d}",
                 "email": f"{uuid.uuid4().hex[:8]}@lead.com",
                 "city": "Seattle",
                 "state": "WA",

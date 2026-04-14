@@ -9,7 +9,7 @@ def test_create_lead_success(client, salesperson_token, auth_headers):
         json={
             "first_name": "John",
             "last_name": "Doe",
-            "phone": f"206{uuid.uuid4().hex[:7]}",
+            "phone": f"206{uuid.uuid4().int % 10_000_000:07d}",
             "status": "active",
         },
         headers=auth_headers(salesperson_token),

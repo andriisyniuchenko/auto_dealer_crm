@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from datetime import datetime
 from app.models.enums import DealStatus
 
@@ -7,6 +7,13 @@ class DealCreate(BaseModel):
     lead_id: int
     vehicle: str
     price: int
+
+    @field_validator("price")
+    @classmethod
+    def validate_price(cls, v: int) -> int:
+        if v <= 0:
+            raise ValueError("Price must be greater than 0")
+        return v
 
 
 class DealSalesperson(BaseModel):
