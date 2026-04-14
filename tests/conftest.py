@@ -55,6 +55,8 @@ def manager_credentials():
 @pytest.fixture
 def manager_user(db, manager_credentials):
     user = User(
+        first_name="Test",
+        last_name="Manager",
         email=manager_credentials["email"],
         hashed_password=hash_password(manager_credentials["password"]),
         role="manager",
@@ -69,6 +71,8 @@ def manager_user(db, manager_credentials):
 @pytest.fixture
 def salesperson_user(db):
     user = User(
+        first_name="Test",
+        last_name="Sales",
         email=f"sales_{uuid.uuid4().hex[:8]}@test.com",
         hashed_password=hash_password("Test12345"),
         role="salesperson",
@@ -119,7 +123,7 @@ def register_user(client, manager_token, auth_headers):
         password = "Test12345"
         response = client.post(
             "/api/v1/auth/register",
-            json={"email": email, "password": password, "role": role},
+            json={"first_name": "Test", "last_name": role.capitalize(), "email": email, "password": password, "role": role},
             headers=auth_headers(manager_token),
         )
         assert response.status_code == 200, response.json()

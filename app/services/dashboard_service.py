@@ -67,14 +67,14 @@ def _get_top_salespeople(db: Session):
 
     deals_salespeople: dict[int, list[tuple]] = defaultdict(list)
     for deal, sp, user in rows:
-        deals_salespeople[deal.id].append((user.id, user.email))
+        deals_salespeople[deal.id].append((user.id, user.full_name))
 
     stats: dict[int, dict] = {}
     for deal_id, salespeople in deals_salespeople.items():
         share = 1 / len(salespeople)
-        for user_id, email in salespeople:
+        for user_id, full_name in salespeople:
             if user_id not in stats:
-                stats[user_id] = {"email": email, "sold_count": 0.0}
+                stats[user_id] = {"name": full_name, "sold_count": 0.0}
             stats[user_id]["sold_count"] += share
 
     return sorted(stats.values(), key=lambda x: x["sold_count"], reverse=True)[:3]

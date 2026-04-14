@@ -20,14 +20,14 @@ def get_sales_stats(db: Session):
     # Group by deal to calculate correct share per salesperson
     deals_salespeople: dict[int, list[tuple]] = defaultdict(list)
     for deal, sp, user in rows:
-        deals_salespeople[deal.id].append((user.id, user.email))
+        deals_salespeople[deal.id].append((user.id, user.full_name, user.email))
 
     stats: dict[int, dict] = {}
     for deal_id, salespeople in deals_salespeople.items():
         share = 1 / len(salespeople)
-        for user_id, email in salespeople:
+        for user_id, full_name, email in salespeople:
             if user_id not in stats:
-                stats[user_id] = {"user_id": user_id, "email": email, "sold_count": 0.0}
+                stats[user_id] = {"user_id": user_id, "email": email, "name": full_name, "sold_count": 0.0}
             stats[user_id]["sold_count"] += share
 
     return list(stats.values())

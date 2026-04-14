@@ -19,8 +19,14 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
+    first_name = Column(String, nullable=False, default="")
+    last_name = Column(String, nullable=False, default="")
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
+
+    @property
+    def full_name(self) -> str:
+        return f"{self.first_name} {self.last_name}".strip() or self.email
 
     role = Column(SAEnum(UserRole, name="user_role"), nullable=False, index=True)
 

@@ -285,7 +285,7 @@ def get_leads_with_salespeople(
             "status": lead.status,
             "last_contacted_at": lead.last_contacted_at,
             "ownership": ownership,
-            "salespeople": [user.email for user in salespeople],
+            "salespeople": [user.full_name for user in salespeople],
         })
 
     return result
@@ -313,6 +313,6 @@ def get_inactive_leads_with_salespeople(db: Session, current_user: User):
             .filter(LeadSalesperson.lead_id == lead.id)
             .all()
         )
-        lead.salespeople_display = [user.email for user in salespeople]
+        lead.salespeople_display = [user.full_name for user in salespeople]
 
     return leads

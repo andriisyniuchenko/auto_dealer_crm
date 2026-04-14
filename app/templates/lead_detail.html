@@ -68,7 +68,7 @@
             {% if assigned_salespeople %}
                 {% for sp in assigned_salespeople %}
                 <div class="sp-item">
-                    <span class="sp-email">{{ sp.email }}</span>
+                    <span class="sp-email">{{ sp.full_name }}</span>
                     {% if current_user.role in ["manager", "general_manager"] %}
                     <form method="post" action="/api/v1/leads-page/{{ lead.id }}/remove-salesperson/{{ sp.id }}" class="sp-remove-form">
                         <button type="submit" class="sp-trash-btn" title="Remove">
@@ -94,7 +94,7 @@
                 <form method="post" action="/api/v1/leads-page/{{ lead.id }}/assign-salesperson" class="sp-add-form">
                     <select name="salesperson_id" required class="sp-select">
                         {% for sp in all_salespeople %}
-                        <option value="{{ sp.id }}">{{ sp.email }}</option>
+                        <option value="{{ sp.id }}">{{ sp.full_name }}</option>
                         {% endfor %}
                     </select>
                     <button type="submit" class="sp-add-btn">Assign</button>

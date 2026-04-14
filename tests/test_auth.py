@@ -35,7 +35,7 @@ def test_register_success(client, manager_token, auth_headers):
     email = f"new_{uuid.uuid4().hex[:8]}@test.com"
     response = client.post(
         "/api/v1/auth/register",
-        json={"email": email, "password": "Test12345", "role": "salesperson"},
+        json={"first_name": "New", "last_name": "User", "email": email, "password": "Test12345", "role": "salesperson"},
         headers=auth_headers(manager_token),
     )
     assert response.status_code == 200
@@ -46,7 +46,7 @@ def test_register_success(client, manager_token, auth_headers):
 def test_register_weak_password_too_short(client, manager_token, auth_headers):
     response = client.post(
         "/api/v1/auth/register",
-        json={"email": "weak@test.com", "password": "abc1", "role": "salesperson"},
+        json={"first_name": "Weak", "last_name": "User", "email": "weak@test.com", "password": "abc1", "role": "salesperson"},
         headers=auth_headers(manager_token),
     )
     assert response.status_code == 422
@@ -55,7 +55,7 @@ def test_register_weak_password_too_short(client, manager_token, auth_headers):
 def test_register_weak_password_no_digit(client, manager_token, auth_headers):
     response = client.post(
         "/api/v1/auth/register",
-        json={"email": "weak@test.com", "password": "onlyletters", "role": "salesperson"},
+        json={"first_name": "Weak", "last_name": "User", "email": "weak@test.com", "password": "onlyletters", "role": "salesperson"},
         headers=auth_headers(manager_token),
     )
     assert response.status_code == 422
@@ -64,7 +64,7 @@ def test_register_weak_password_no_digit(client, manager_token, auth_headers):
 def test_register_weak_password_no_letter(client, manager_token, auth_headers):
     response = client.post(
         "/api/v1/auth/register",
-        json={"email": "weak@test.com", "password": "12345678", "role": "salesperson"},
+        json={"first_name": "Weak", "last_name": "User", "email": "weak@test.com", "password": "12345678", "role": "salesperson"},
         headers=auth_headers(manager_token),
     )
     assert response.status_code == 422
@@ -73,7 +73,7 @@ def test_register_weak_password_no_letter(client, manager_token, auth_headers):
 def test_register_duplicate_email(client, manager_token, auth_headers, manager_credentials):
     response = client.post(
         "/api/v1/auth/register",
-        json={"email": manager_credentials["email"], "password": "Test12345", "role": "salesperson"},
+        json={"first_name": "Dup", "last_name": "User", "email": manager_credentials["email"], "password": "Test12345", "role": "salesperson"},
         headers=auth_headers(manager_token),
     )
     assert response.status_code == 409
@@ -82,7 +82,7 @@ def test_register_duplicate_email(client, manager_token, auth_headers, manager_c
 def test_register_requires_auth(client):
     response = client.post(
         "/api/v1/auth/register",
-        json={"email": "new@test.com", "password": "Test12345", "role": "salesperson"},
+        json={"first_name": "New", "last_name": "User", "email": "new@test.com", "password": "Test12345", "role": "salesperson"},
     )
     assert response.status_code == 401
 
@@ -90,7 +90,7 @@ def test_register_requires_auth(client):
 def test_register_salesperson_cannot_register_others(client, salesperson_token, auth_headers):
     response = client.post(
         "/api/v1/auth/register",
-        json={"email": "new@test.com", "password": "Test12345", "role": "salesperson"},
+        json={"first_name": "New", "last_name": "User", "email": "new@test.com", "password": "Test12345", "role": "salesperson"},
         headers=auth_headers(salesperson_token),
     )
     assert response.status_code == 403

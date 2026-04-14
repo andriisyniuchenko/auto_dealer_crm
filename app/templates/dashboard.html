@@ -92,7 +92,7 @@
             {% for row in dashboard.top_salespeople %}
             <li class="dashboard-list-item">
                 <span class="dashboard-rank">{{ loop.index }}</span>
-                <span class="dashboard-list-name">{{ row.email }}</span>
+                <span class="dashboard-list-name">{{ row.name }}</span>
                 <span class="dashboard-sold-count">{{ row.sold_count | round(1) }} sold</span>
             </li>
             {% endfor %}
