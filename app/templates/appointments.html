@@ -20,7 +20,7 @@
         <tr>
 
             <td>
-                {{ appointment.appointment_at.strftime("%b %d, %Y · %I:%M %p") }}
+                {{ localdt(appointment.appointment_at, "%b %d, %Y · %I:%M %p") }}
             </td>
 
             <td>

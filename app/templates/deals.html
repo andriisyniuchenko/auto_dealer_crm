@@ -35,7 +35,7 @@
             </td>
             <td>
                 {% if deal.closed_at %}
-                    {{ deal.closed_at.strftime("%b %d, %Y") }}
+                    {{ localdt(deal.closed_at, "%b %d, %Y") }}
                 {% else %}
                     -
                 {% endif %}

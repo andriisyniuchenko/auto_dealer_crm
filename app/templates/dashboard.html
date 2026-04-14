@@ -39,7 +39,7 @@
             {% for appt in dashboard.today_appointments_list %}
             <li class="dashboard-list-item">
                 <span class="dashboard-list-time">
-                    {{ appt.appointment_at.strftime("%I:%M %p") }}
+                    {{ localdt(appt.appointment_at, "%I:%M %p") }}
                 </span>
                 <a href="/api/v1/leads-page/{{ appt.lead_id }}" class="dashboard-list-name">
                     Lead #{{ appt.lead_id }}
