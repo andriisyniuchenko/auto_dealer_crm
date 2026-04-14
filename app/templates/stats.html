@@ -18,7 +18,7 @@
         {% for row in stats %}
         <tr>
             <td>{{ loop.index }}</td>
-            <td>{{ row.name }}</td>
+            <td><a href="/api/v1/salesperson-page/{{ row.user_id }}">{{ row.name }}</a></td>
             <td>{{ row.sold_count | round(1) }}</td>
         </tr>
         {% endfor %}

@@ -8,6 +8,13 @@ from app.models.user import User
 
 
 def get_sales_stats(db: Session):
+    # Seed stats with all salespeople at 0
+    all_salespeople = db.query(User).filter(User.role.in_(["salesperson", "manager", "general_manager"])).all()
+    stats: dict[int, dict] = {
+        u.id: {"user_id": u.id, "email": u.email, "name": u.full_name, "sold_count": 0.0}
+        for u in all_salespeople
+    }
+
     # Single query with JOINs instead of N+1 loops
     rows = (
         db.query(Deal, LeadSalesperson, User)
@@ -22,12 +29,9 @@ def get_sales_stats(db: Session):
     for deal, sp, user in rows:
         deals_salespeople[deal.id].append((user.id, user.full_name, user.email))
 
-    stats: dict[int, dict] = {}
     for deal_id, salespeople in deals_salespeople.items():
         share = 1 / len(salespeople)
         for user_id, full_name, email in salespeople:
-            if user_id not in stats:
-                stats[user_id] = {"user_id": user_id, "email": email, "name": full_name, "sold_count": 0.0}
             stats[user_id]["sold_count"] += share
 
     return list(stats.values())

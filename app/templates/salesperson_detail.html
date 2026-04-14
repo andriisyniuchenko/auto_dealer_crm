@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}{{ sp.full_name }}{% endblock %}
+
+{% block content %}
+
+<div class="lead-header">
+    <div class="lead-header-title">
+        <h2>{{ sp.full_name }}</h2>
+        <span class="status-badge status-active">{{ sp.role.value | replace("_", " ") | title }}</span>
+    </div>
+    <a href="/api/v1/stats-page" class="btn btn-secondary btn-sm">← Back to Stats</a>
+</div>
+
+<!-- Summary cards -->
+<div class="grid" style="margin-top: 20px;">
+    <div class="card">
+        <h3>Email</h3>
+        <p style="font-size: 16px; word-break: break-all;">{{ sp.email }}</p>
+    </div>
+    <div class="card">
+        <h3>Active Leads</h3>
+        <p>{{ active_leads }}</p>
+    </div>
+    <div class="card">
+        <h3>Total Leads</h3>
+        <p>{{ leads | length }}</p>
+    </div>
+    <div class="card">
+        <h3>Sold Deals</h3>
+        <p>{{ sold_deals }}</p>
+    </div>
+</div>
+
+<div class="dashboard-grid" style="margin-top: 24px;">
+
+    <!-- Leads -->
+    <div class="dashboard-panel">
+        <p class="dashboard-panel-title">Leads ({{ leads | length }})</p>
+        {% if leads %}
+        <ul class="dashboard-list">
+            {% for lead in leads %}
+            <li class="dashboard-list-item">
+                <a href="/api/v1/leads-page/{{ lead.id }}" class="dashboard-list-name">
+                    {{ lead.first_name }} {{ lead.last_name }}
+                </a>
+                <span class="status-badge status-{{ lead.status }}">{{ lead.status }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted">No leads assigned.</p>
+        {% endif %}
+    </div>
+
+    <!-- Appointments -->
+    <div class="dashboard-panel">
+        <p class="dashboard-panel-title">Appointments ({{ appointments | length }})</p>
+        {% if appointments %}
+        <ul class="dashboard-list">
+            {% for appt in appointments %}
+            <li class="dashboard-list-item">
+                <span class="dashboard-list-time" style="min-width: 110px; font-size: 12px;">
+                    {{ localdt(appt.appointment_at, "%b %d · %I:%M %p") }}
+                </span>
+                <a href="/api/v1/leads-page/{{ appt.lead_id }}" class="dashboard-list-name">
+                    {{ appt.lead_name }}
+                </a>
+                <span class="status-badge status-{{ appt.status }}">{{ appt.status }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted">No appointments.</p>
+        {% endif %}
+    </div>
+
+    <!-- Deals -->
+    <div class="dashboard-panel">
+        <p class="dashboard-panel-title">Deals ({{ deals | length }})</p>
+        {% if deals %}
+        <ul class="dashboard-list">
+            {% for deal in deals %}
+            <li class="dashboard-list-item">
+                <a href="/api/v1/leads-page/{{ deal.lead_id }}" class="dashboard-list-name">
+                    {{ deal.lead_name }}
+                </a>
+                <span style="font-size: 13px; color: #475569; white-space: nowrap;">
+                    ${{ "{:,}".format(deal.price) }}
+                </span>
+                <span class="status-badge status-{{ deal.status }}">{{ deal.status }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted">No deals.</p>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}
