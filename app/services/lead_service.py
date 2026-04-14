@@ -26,12 +26,14 @@ def create_lead(db: Session, lead: LeadCreate, user_id: int):
     db.add(new_lead)
     db.flush()
 
-    lead_user_link = LeadSalesperson(
-        lead_id=new_lead.id,
-        user_id=user_id,
-    )
+    creator = db.query(User).filter(User.id == user_id).first()
+    if creator and creator.role.value == "salesperson":
+        lead_user_link = LeadSalesperson(
+            lead_id=new_lead.id,
+            user_id=user_id,
+        )
+        db.add(lead_user_link)
 
-    db.add(lead_user_link)
     db.commit()
     db.refresh(new_lead)
 

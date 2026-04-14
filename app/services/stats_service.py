@@ -9,7 +9,7 @@ from app.models.user import User
 
 def get_sales_stats(db: Session):
     # Seed stats with all salespeople at 0
-    all_salespeople = db.query(User).filter(User.role.in_(["salesperson", "manager", "general_manager"])).all()
+    all_salespeople = db.query(User).filter(User.role == "salesperson").all()
     stats: dict[int, dict] = {
         u.id: {"user_id": u.id, "email": u.email, "name": u.full_name, "sold_count": 0.0}
         for u in all_salespeople
