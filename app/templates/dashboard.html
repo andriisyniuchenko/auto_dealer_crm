@@ -5,26 +5,101 @@
 {% block content %}
 <h2>Dashboard</h2>
 
+<!-- Stats cards -->
 <div class="grid">
-
     <div class="card">
         <h3>Active Leads</h3>
         <p>{{ dashboard.active_leads }}</p>
     </div>
-
     <div class="card">
         <h3>Appointments Today</h3>
         <p>{{ dashboard.appointments_today }}</p>
     </div>
-
     <div class="card">
         <h3>Open Deals</h3>
         <p>{{ dashboard.open_deals }}</p>
     </div>
-
     <div class="card">
         <h3>Sold Deals</h3>
-        <p>{{ dashboard.sold_deals }}</p>
+        <p>{{ dashboard.sold_deals | round(1) }}</p>
     </div>
+    <div class="card">
+        <h3>Total Revenue</h3>
+        <p>${{ "{:,}".format(dashboard.revenue) }}</p>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+
+    <!-- Today's appointments -->
+    <div class="dashboard-panel">
+        <p class="dashboard-panel-title">Today's Appointments</p>
+        {% if dashboard.today_appointments_list %}
+        <ul class="dashboard-list">
+            {% for appt in dashboard.today_appointments_list %}
+            <li class="dashboard-list-item">
+                <span class="dashboard-list-time">
+                    {{ appt.appointment_at.strftime("%H:%M") }}
+                </span>
+                <a href="/api/v1/leads-page/{{ appt.lead_id }}" class="dashboard-list-name">
+                    Lead #{{ appt.lead_id }}
+                </a>
+                <span class="status-badge status-{{ appt.status }}">{{ appt.status }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted">No appointments today.</p>
+        {% endif %}
+    </div>
+
+    <!-- Stale / red leads -->
+    <div class="dashboard-panel">
+        <p class="dashboard-panel-title">
+            Needs Attention
+            {% if dashboard.stale_leads %}
+            <span class="stale-badge">{{ dashboard.stale_leads | length }}</span>
+            {% endif %}
+        </p>
+        {% if dashboard.stale_leads %}
+        <ul class="dashboard-list">
+            {% for lead in dashboard.stale_leads %}
+            <li class="dashboard-list-item">
+                <a href="/api/v1/leads-page/{{ lead.id }}" class="dashboard-list-name">
+                    {{ lead.name }}
+                </a>
+                <span class="stale-days {% if lead.days_since_contact is none or lead.days_since_contact >= 7 %}stale-red{% endif %}">
+                    {% if lead.days_since_contact is none %}
+                        Never contacted
+                    {% else %}
+                        {{ lead.days_since_contact }}d ago
+                    {% endif %}
+                </span>
+            </li>
+            {% endfor %}
+        </ul>
+        <a href="/api/v1/leads-page" class="dashboard-link">View all leads →</a>
+        {% else %}
+        <p class="text-muted">All leads are up to date.</p>
+        {% endif %}
+    </div>
+
+    <!-- Top salespeople (managers only) -->
+    {% if dashboard.top_salespeople %}
+    <div class="dashboard-panel">
+        <p class="dashboard-panel-title">Top Salespeople This Month</p>
+        <ul class="dashboard-list">
+            {% for row in dashboard.top_salespeople %}
+            <li class="dashboard-list-item">
+                <span class="dashboard-rank">{{ loop.index }}</span>
+                <span class="dashboard-list-name">{{ row.email }}</span>
+                <span class="dashboard-sold-count">{{ row.sold_count | round(1) }} sold</span>
+            </li>
+            {% endfor %}
+        </ul>
+        <a href="/api/v1/stats-page" class="dashboard-link">Full stats →</a>
+    </div>
+    {% endif %}
+
 </div>
 {% endblock %}

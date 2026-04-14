@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from app.db.session import SessionLocal
 from app.models.user import User
 from app.models.lead import Lead
@@ -89,6 +91,7 @@ def seed():
             vehicle="2025 Toyota Camry",
             price=31995,
             status=DealStatus.sold.value,
+            closed_at=datetime.now(timezone.utc),
         )
 
         db.add_all([deal1, deal2])
