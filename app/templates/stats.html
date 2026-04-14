@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Sales Stats{% endblock %}
+
+{% block content %}
+<h2>Sales Performance</h2>
+
+{% if stats %}
+<table class="crm-table">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Salesperson</th>
+            <th>Deals Sold</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in stats %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ row.email }}</td>
+            <td>{{ row.sold_count | round(1) }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<p class="stats-note">Shared deals count as 0.5 per salesperson.</p>
+{% else %}
+<p>No sold deals yet.</p>
+{% endif %}
+
+{% endblock %}
