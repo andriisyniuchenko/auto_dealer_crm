@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.models.user import User
 from app.core.security import hash_password
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -13,8 +14,8 @@ def create_first_admin(db: Session):
 
     if users_count == 0:
         admin = User(
-            email="admin@demo.com",
-            hashed_password=hash_password("admin123"),
+            email=settings.FIRST_ADMIN_EMAIL,
+            hashed_password=hash_password(settings.FIRST_ADMIN_PASSWORD),
             role="manager",
             is_active=True,
         )
