@@ -146,7 +146,7 @@
                 <div class="timeline-dot"></div>
                 <div class="timeline-body">
                     <span class="timeline-type">{{ item.type }}</span>
-                    <span class="timeline-time">{{ item.timestamp.strftime("%b %d, %Y · %H:%M") }}</span>
+                    <span class="timeline-time">{{ item.timestamp.strftime("%b %d, %Y · %I:%M %p") }}</span>
                     <p class="timeline-content">{{ item.content or "—" }}</p>
                 </div>
             </li>
