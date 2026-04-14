@@ -37,7 +37,14 @@ def create_lead(db: Session, lead: LeadCreate, user_id: int):
 
     return new_lead
 
-def get_leads(db: Session, current_user: User, page: int = 1, limit: int = 20):
+def get_leads(
+    db: Session,
+    current_user: User,
+    page: int = 1,
+    limit: int = 20,
+    status: str | None = None,
+    search: str | None = None,
+):
     if current_user.role.value in ["manager", "general_manager"]:
         query = db.query(Lead).order_by(Lead.created_at.desc())
     else:
@@ -46,6 +53,17 @@ def get_leads(db: Session, current_user: User, page: int = 1, limit: int = 20):
             .join(LeadSalesperson)
             .filter(LeadSalesperson.user_id == current_user.id)
             .order_by(Lead.created_at.desc())
+        )
+
+    if status:
+        query = query.filter(Lead.status == status)
+
+    if search:
+        term = f"%{search}%"
+        query = query.filter(
+            Lead.first_name.ilike(term)
+            | Lead.last_name.ilike(term)
+            | Lead.phone.ilike(term)
         )
 
     total = query.count()
@@ -217,23 +235,38 @@ def remove_salesperson_from_lead(db: Session, lead_id: int, salesperson_id: int)
     return {"message": "Salesperson removed from lead successfully"}
 
 
-def get_leads_with_salespeople(db: Session, current_user: User):
+def get_leads_with_salespeople(
+    db: Session,
+    current_user: User,
+    search: str | None = None,
+    status: str | None = None,
+):
     if current_user.role.value in ["manager", "general_manager"]:
-        leads = db.query(Lead).order_by(Lead.created_at.desc()).all()
+        query = db.query(Lead).order_by(Lead.created_at.desc())
     else:
-        leads = (
+        query = (
             db.query(Lead)
             .join(LeadSalesperson)
             .filter(LeadSalesperson.user_id == current_user.id)
             .order_by(Lead.created_at.desc())
-            .all()
         )
+
+    if status:
+        query = query.filter(Lead.status == status)
+
+    if search:
+        term = f"%{search}%"
+        query = query.filter(
+            Lead.first_name.ilike(term)
+            | Lead.last_name.ilike(term)
+            | Lead.phone.ilike(term)
+        )
+
+    leads = query.all()
 
     result = []
 
     for lead in leads:
-        if lead.status != "active":
-            continue
 
         salespeople = (
             db.query(User)

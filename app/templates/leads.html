@@ -5,6 +5,26 @@
 {% block content %}
 <h2>Leads</h2>
 
+<form method="get" action="/api/v1/leads-page" class="filter-form">
+    <input
+        type="text"
+        name="search"
+        placeholder="Search by name or phone..."
+        value="{{ search }}"
+    >
+    <select name="status">
+        <option value="" {% if not status %}selected{% endif %}>All statuses</option>
+        <option value="active" {% if status == "active" %}selected{% endif %}>Active</option>
+        <option value="sold" {% if status == "sold" %}selected{% endif %}>Sold</option>
+        <option value="lost" {% if status == "lost" %}selected{% endif %}>Lost</option>
+        <option value="archived" {% if status == "archived" %}selected{% endif %}>Archived</option>
+    </select>
+    <button type="submit" class="btn">Search</button>
+    {% if search or status %}
+    <a href="/api/v1/leads-page" class="btn btn-secondary">Clear</a>
+    {% endif %}
+</form>
+
 <table class="crm-table">
     <thead>
         <tr>

@@ -25,13 +25,15 @@ router = APIRouter()
 @router.get("/leads-page")
 def leads_page(
     request: Request,
+    search: str | None = None,
+    status: str | None = None,
     db: Session = Depends(get_db),
     current_user=Depends(get_current_web_user),
 ):
     if isinstance(current_user, RedirectResponse):
         return current_user
 
-    leads = get_leads_with_salespeople(db, current_user)
+    leads = get_leads_with_salespeople(db, current_user, search=search, status=status)
 
     return templates.TemplateResponse(
         "leads.html",
@@ -39,6 +41,8 @@ def leads_page(
             "request": request,
             "leads": leads,
             "current_user": current_user,
+            "search": search or "",
+            "status": status or "",
         },
     )
 

@@ -93,6 +93,39 @@ main {
     color: #1e293b;
 }
 
+/* ── FILTER FORM ───────────────────────────────────────────────────────────── */
+
+.filter-form {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.filter-form input[type="text"] {
+    padding: 8px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    min-width: 220px;
+    outline: none;
+}
+
+.filter-form input[type="text"]:focus {
+    border-color: #2563eb;
+}
+
+.filter-form select {
+    padding: 8px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    background: white;
+    outline: none;
+    cursor: pointer;
+}
+
 /* ── TABLE ────────────────────────────────────────────────────────────────── */
 
 .crm-table {

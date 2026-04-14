@@ -27,10 +27,12 @@ def create_new_lead(
 def read_leads(
     page: int = Query(1, ge=1),
     limit: int = Query(20, ge=1, le=100),
+    status: str | None = Query(None),
+    search: str | None = Query(None),
     db: Session = Depends(get_db),
     current_user: User = Depends(require_roles("manager", "general_manager", "salesperson")),
 ):
-    return get_leads(db, current_user, page=page, limit=limit)
+    return get_leads(db, current_user, page=page, limit=limit, status=status, search=search)
 
 
 @router.post("/{lead_id}/assign")

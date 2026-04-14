@@ -189,6 +189,59 @@ def test_cannot_assign_duplicate_salesperson(
     assert response.status_code == 409
 
 
+# ── filter / search ──────────────────────────────────────────────────────────
+
+def test_filter_leads_by_status(client, salesperson_token, auth_headers, create_lead):
+    lead_id = create_lead(salesperson_token)
+
+    # update lead status to "lost"
+    client.patch(
+        f"/api/v1/leads/{lead_id}",
+        json={"status": "lost"},
+        headers=auth_headers(salesperson_token),
+    )
+
+    active_resp = client.get("/api/v1/leads/?status=active", headers=auth_headers(salesperson_token))
+    lost_resp = client.get("/api/v1/leads/?status=lost", headers=auth_headers(salesperson_token))
+
+    assert active_resp.status_code == 200
+    assert lost_resp.status_code == 200
+
+    active_ids = [l["id"] for l in active_resp.json()["items"]]
+    lost_ids = [l["id"] for l in lost_resp.json()["items"]]
+
+    assert lead_id not in active_ids
+    assert lead_id in lost_ids
+
+
+def test_search_leads_by_name(client, salesperson_token, auth_headers, create_lead):
+    lead_id = create_lead(salesperson_token, first_name="Uniquename")
+
+    response = client.get("/api/v1/leads/?search=Uniquename", headers=auth_headers(salesperson_token))
+    assert response.status_code == 200
+    ids = [l["id"] for l in response.json()["items"]]
+    assert lead_id in ids
+
+
+def test_search_leads_by_phone(client, salesperson_token, auth_headers, create_lead):
+    lead_id = create_lead(salesperson_token)
+
+    # get the lead's phone
+    lead = client.get(f"/api/v1/leads/{lead_id}", headers=auth_headers(salesperson_token)).json()
+    phone = lead["phone"]
+
+    response = client.get(f"/api/v1/leads/?search={phone}", headers=auth_headers(salesperson_token))
+    assert response.status_code == 200
+    ids = [l["id"] for l in response.json()["items"]]
+    assert lead_id in ids
+
+
+def test_search_no_results(client, salesperson_token, auth_headers):
+    response = client.get("/api/v1/leads/?search=zzznomatch999", headers=auth_headers(salesperson_token))
+    assert response.status_code == 200
+    assert response.json()["total"] == 0
+
+
 def test_cannot_assign_more_than_two_salespeople(
     client, manager_token, auth_headers, register_user, login_user, create_lead
 ):
