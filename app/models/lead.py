@@ -5,7 +5,7 @@ from sqlalchemy.orm import relationship
 
 from app.db.session import Base
 from app.models.lead_salesperson import LeadSalesperson
-from app.models.enums import LeadStatus, LeadStage
+from app.models.enums import LeadStatus
 
 
 class Lead(Base):
