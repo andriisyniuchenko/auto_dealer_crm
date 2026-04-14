@@ -1,9 +1,9 @@
 # Auto Dealer CRM
 
-A full-stack web application for managing automotive dealership sales workflows — built with FastAPI, PostgreSQL, and server-side rendered HTML templates.
+A full-stack CRM web application for automotive dealerships — built with FastAPI, PostgreSQL, and server-side rendered HTML templates.
 
 [![CI](https://github.com/andriisyniuchenko/auto_dealer_crm/actions/workflows/ci.yml/badge.svg)](https://github.com/andriisyniuchenko/auto_dealer_crm/actions/workflows/ci.yml)
-![Python](https://img.shields.io/badge/Python-3.12-blue?logo=python)
+![Python](https://img.shields.io/badge/Python-3.14-blue?logo=python)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.135-green?logo=fastapi)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue?logo=postgresql)
 ![Docker](https://img.shields.io/badge/Docker-Compose-blue?logo=docker)
@@ -12,21 +12,24 @@ A full-stack web application for managing automotive dealership sales workflows 
 
 ## Overview
 
-Auto Dealer CRM helps dealership teams track leads, manage deals, schedule appointments, and log customer interactions — all within a role-based access system. The app is fully containerized and ready for cloud deployment.
+Auto Dealer CRM helps dealership teams track leads, manage deals, schedule appointments, and log customer interactions — all within a role-based access system. The app ships with both a web UI and a REST API, is fully containerized, and ready to run with a single command.
 
 ---
 
 ## Features
 
-- **Role-based access control** — General Manager, Manager, Finance Manager, Salesperson
-- **Lead lifecycle management** — track leads through stages: New → Contacted → Appointment → Test Drive → Negotiation → Finance → Sold/Lost
-- **Shared lead ownership** — up to 2 salespeople per lead with automatic 50/50 credit split
-- **Deal tracking** — create and close deals with status: Open / Sold / Lost / Cancelled
-- **Activity logging** — log calls, SMS, emails, and notes per lead
-- **Appointment scheduling** — schedule and manage customer appointments
-- **Lead timeline** — chronological history of all interactions per lead
-- **Dashboard metrics** — role-specific sales performance data
+- **Role-based access control** — General Manager, Manager, Salesperson with per-role data visibility
+- **Lead management** — create, search, and filter leads by status or name/phone; track trade-in vehicle info
+- **Shared lead ownership** — up to 2 salespeople per lead with automatic 50/50 deal credit split
+- **Deal tracking** — create and close deals (Sold / Lost / Cancelled) with price validation
+- **Activity logging** — log calls, SMS, emails, visits, and notes per lead
+- **Appointment scheduling** — schedule and update customer appointments with status tracking
+- **Lead timeline** — chronological history of all interactions, appointments, and deals per lead
+- **Dashboard** — role-specific metrics: active leads, today's appointments list, revenue, stale leads that need attention, and top salespeople of the month (managers only)
+- **Sales stats page** — leaderboard with deal credit split, visible to managers only
+- **Stale lead alerts** — dashboard highlights leads not contacted in 7+ days or never contacted
 - **JWT authentication** — cookie-based sessions for web UI, Bearer token support for API
+- **Input validation** — email format, phone number (7–15 digits), deal price > 0
 - **Demo data seeding** — one command to populate realistic sample data
 
 ---
@@ -35,7 +38,7 @@ Auto Dealer CRM helps dealership teams track leads, manage deals, schedule appoi
 
 | Layer | Technology |
 |---|---|
-| Backend | FastAPI, Python 3.12 |
+| Backend | FastAPI, Python 3.14 |
 | Database | PostgreSQL 16, SQLAlchemy 2.0 |
 | Migrations | Alembic |
 | Auth | JWT (python-jose), bcrypt |
@@ -51,7 +54,7 @@ Auto Dealer CRM helps dealership teams track leads, manage deals, schedule appoi
 app/
 ├── api/
 │   └── v1/
-│       ├── endpoints/     # JSON API routes (auth, leads, deals, etc.)
+│       ├── endpoints/     # JSON API routes (auth, leads, deals, appointments, stats…)
 │       ├── pages/         # Server-rendered HTML page routes
 │       └── router.py
 ├── core/                  # Config, security, bootstrap
@@ -67,76 +70,37 @@ app/
 
 ## Quick Start (Docker)
 
-### Prerequisites
-
-- Docker + Docker Compose
-
-### 1. Create environment file
+**Prerequisites:** Docker + Docker Compose
 
 ```bash
-cp .env.example .env.docker
-```
+# 1. Clone the repo
+git clone https://github.com/andriisyniuchenko/auto_dealer_crm.git
+cd auto_dealer_crm
 
-Edit `.env.docker` with your values:
-
-```env
-DATABASE_URL=postgresql://postgres:yourpassword@db:5432/auto_dealer_crm
-TEST_DATABASE_URL=postgresql://postgres:yourpassword@db:5432/auto_dealer_crm_test
-SECRET_KEY=your-secret-key-min-32-chars
-ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=60
-
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=yourpassword
-POSTGRES_DB=auto_dealer_crm
-```
-
-### 2. Start the application
-
-```bash
+# 2. Start the application (uses .env.docker — already included)
 make up
-```
 
-### 3. Seed demo data (optional)
-
-```bash
+# 3. Seed demo data
 make demo
-```
 
-### 4. Open in browser
-
-```
-http://localhost:8000
+# 4. Open in browser
+open http://localhost:8000
 ```
 
 ---
 
 ## Local Development (without Docker)
 
-### Prerequisites
-
-- Python 3.12+
-- PostgreSQL running locally
-
-### 1. Set up environment
+**Prerequisites:** Python 3.12+, PostgreSQL running locally
 
 ```bash
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-```
 
-### 2. Configure environment variables
-
-```bash
 cp .env.example .env
-```
+# Edit .env with your local database credentials
 
-Edit `.env` with your local database credentials.
-
-### 3. Run migrations and start
-
-```bash
 alembic upgrade head
 uvicorn app.main:app --reload
 ```
@@ -147,12 +111,12 @@ uvicorn app.main:app --reload
 
 | Command | Description |
 |---|---|
-| `make up` | Start all services |
+| `make up` | Build and start all services |
 | `make down` | Stop all services |
-| `make reset` | Drop and recreate the database |
-| `make demo` | Seed demo users and sample data |
+| `make reset` | Drop and recreate the database volume |
+| `make demo` | Start services and seed demo data |
 | `make logs` | Tail application logs |
-| `make rebuild` | Rebuild Docker image |
+| `make rebuild` | Force rebuild Docker image |
 
 ---
 
@@ -162,9 +126,13 @@ After running `make demo`:
 
 | Role | Email | Password |
 |---|---|---|
-| Manager | manager@test.com | 123456 |
-| Salesperson | sales1@test.com | 123456 |
-| Salesperson | sales2@test.com | 123456 |
+| Manager | manager@dealer.com | Manager1 |
+| Salesperson | james.carter@dealer.com | Sales123 |
+| Salesperson | emily.nguyen@dealer.com | Sales123 |
+| Salesperson | marcus.webb@dealer.com | Sales123 |
+| Salesperson | priya.sharma@dealer.com | Sales123 |
+
+> On first `make up` (without demo), a default manager account is created using credentials from `.env.docker` (`FIRST_ADMIN_EMAIL` / `FIRST_ADMIN_PASSWORD`).
 
 ---
 
@@ -172,7 +140,7 @@ After running `make demo`:
 
 The app exposes a REST API under `/api/v1/` alongside the web UI.
 
-Interactive docs available at:
+Interactive docs:
 ```
 http://localhost:8000/docs
 ```
