@@ -63,11 +63,16 @@ def get_appointments_by_lead(
 
 def update_appointment(
     db: Session,
+    lead_id: int,
     appointment_id: int,
     appointment_data: AppointmentUpdate,
     current_user: User,
 ):
-    appointment = db.query(Appointment).filter(Appointment.id == appointment_id).first()
+    appointment = (
+        db.query(Appointment)
+        .filter(Appointment.id == appointment_id, Appointment.lead_id == lead_id)
+        .first()
+    )
 
     if not appointment:
         raise HTTPException(status_code=404, detail="Appointment not found")

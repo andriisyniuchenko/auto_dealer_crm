@@ -40,4 +40,4 @@ def update_lead_appointment(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_roles("manager", "general_manager", "salesperson")),
 ):
-    return update_appointment(db, appointment_id, appointment_data, current_user)
+    return update_appointment(db, lead_id, appointment_id, appointment_data, current_user)

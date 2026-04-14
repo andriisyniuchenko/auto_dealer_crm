@@ -100,6 +100,22 @@ def test_salesperson_cannot_update_foreign_appointment(
     assert response.status_code == 403
 
 
+def test_cannot_update_appointment_with_wrong_lead_id(
+    client, salesperson_token, auth_headers, create_lead
+):
+    headers = auth_headers(salesperson_token)
+    lead_id = create_lead(salesperson_token)
+    other_lead_id = create_lead(salesperson_token)
+    appointment_id = _create_appointment(client, salesperson_token, lead_id, headers).json()["id"]
+
+    response = client.patch(
+        f"/api/v1/leads/{other_lead_id}/appointments/{appointment_id}",
+        json={"status": "confirmed"},
+        headers=headers,
+    )
+    assert response.status_code == 404
+
+
 def test_manager_can_update_any_appointment(
     client, manager_token, auth_headers, register_user, login_user, create_lead
 ):

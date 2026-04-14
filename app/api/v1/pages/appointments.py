@@ -107,7 +107,7 @@ def update_appointment_page(
 
     appointment_data = AppointmentUpdate(status=status)
 
-    update_appointment(db, appointment_id, appointment_data, current_user)
+    update_appointment(db, lead_id, appointment_id, appointment_data, current_user)
 
     return RedirectResponse(
         url="/api/v1/appointments-page",
