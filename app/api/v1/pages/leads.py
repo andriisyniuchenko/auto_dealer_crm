@@ -75,6 +75,7 @@ def create_lead_page_post(
     state: str = Form(None),
     source: str = Form(None),
     interest: str = Form(None),
+    trade_in: str = Form(None),
     notes: str = Form(None),
     db: Session = Depends(get_db),
     current_user=Depends(get_current_web_user),
@@ -91,6 +92,7 @@ def create_lead_page_post(
         state=state,
         source=source,
         interest=interest,
+        trade_in=trade_in,
         notes=notes,
     )
 
@@ -265,6 +267,7 @@ def edit_lead_page_post(
     state: str = Form(""),
     source: str = Form(""),
     interest: str = Form(""),
+    trade_in: str = Form(""),
     notes: str = Form(""),
     status: str = Form(...),
     db: Session = Depends(get_db),
@@ -282,6 +285,7 @@ def edit_lead_page_post(
         state=state or None,
         source=source or None,
         interest=interest or None,
+        trade_in=trade_in or None,
         notes=notes or None,
         status=status,
     )

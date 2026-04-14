@@ -13,6 +13,7 @@ class LeadBase(BaseModel):
     state: str | None = None
     source: str | None = None
     interest: str | None = None
+    trade_in: str | None = None
     notes: str | None = None
     status: LeadStatus = LeadStatus.active
 
@@ -51,6 +52,7 @@ class LeadUpdate(BaseModel):
     state: str | None = None
     source: str | None = None
     interest: str | None = None
+    trade_in: str | None = None
     notes: str | None = None
     status: LeadStatus | None = None
 

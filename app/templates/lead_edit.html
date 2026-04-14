@@ -40,6 +40,10 @@
             <input type="text" name="interest" value="{{ lead.interest or '' }}">
         </div>
         <div class="form-field">
+            <label>Trade-in</label>
+            <input type="text" name="trade_in" value="{{ lead.trade_in or '' }}" placeholder="e.g. 2019 Honda CR-V, ~80k miles">
+        </div>
+        <div class="form-field">
             <label>Status</label>
             <select name="status" required>
                 <option value="active"   {% if lead.status == "active"   %}selected{% endif %}>Active</option>

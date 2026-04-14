@@ -25,6 +25,7 @@ class Lead(Base):
     source = Column(String, nullable=True)
 
     interest = Column(Text, nullable=True)
+    trade_in = Column(String, nullable=True)
     notes = Column(Text, nullable=True)
 
     status = Column(String, nullable=False, default=LeadStatus.active.value)
