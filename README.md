@@ -10,6 +10,12 @@ A full-stack CRM web application for automotive dealerships — built with FastA
 
 ---
 
+## Demo
+
+📹 [Watch demo video](https://youtu.be/8uaZtSdtifc)
+
+---
+
 ## Overview
 
 Auto Dealer CRM helps dealership teams track leads, manage deals, schedule appointments, and log customer interactions — all within a role-based access system. The app ships with both a web UI and a REST API, is fully containerized, and ready to run with a single command.
