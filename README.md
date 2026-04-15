@@ -26,7 +26,8 @@ Auto Dealer CRM helps dealership teams track leads, manage deals, schedule appoi
 - **Appointment scheduling** — schedule and update customer appointments with status tracking
 - **Lead timeline** — chronological history of all interactions, appointments, and deals per lead
 - **Dashboard** — role-specific metrics: active leads, today's appointments list, revenue, stale leads that need attention, and top salespeople of the month (managers only)
-- **Sales stats page** — leaderboard with deal credit split, visible to managers only
+- **Sales stats page** — leaderboard with deal credit split, clickable salesperson profiles, visible to managers only
+- **Salesperson detail page** — per-salesperson breakdown of assigned leads, appointments, and deals
 - **Stale lead alerts** — dashboard highlights leads not contacted in 7+ days or never contacted
 - **JWT authentication** — cookie-based sessions for web UI, Bearer token support for API
 - **Input validation** — email format, phone number (7–15 digits), deal price > 0
@@ -43,8 +44,9 @@ Auto Dealer CRM helps dealership teams track leads, manage deals, schedule appoi
 | Migrations | Alembic |
 | Auth | JWT (python-jose), bcrypt |
 | Frontend | Jinja2 templates, HTML/CSS |
+| Timezone | zoneinfo (stdlib), UTC storage → America/Los_Angeles display |
 | Infrastructure | Docker, Docker Compose |
-| Testing | pytest |
+| Testing | pytest, httpx (48 tests) |
 
 ---
 
@@ -149,6 +151,12 @@ http://localhost:8000/docs
 
 ## Running Tests
 
+The project has 48 tests across 4 test modules (auth, leads, appointments, deals), using an in-memory SQLite database — no Docker required.
+
 ```bash
 pytest tests/
+```
+
+```bash
+pytest tests/ -v   # verbose output
 ```
