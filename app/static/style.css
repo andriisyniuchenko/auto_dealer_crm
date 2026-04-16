@@ -33,6 +33,24 @@ header h1 {
     letter-spacing: 0.3px;
 }
 
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.brand-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.brand-user {
+    font-size: 13px;
+    font-weight: 400;
+    color: #94a3b8;
+    white-space: nowrap;
+}
+
 nav {
     display: flex;
     gap: 4px;

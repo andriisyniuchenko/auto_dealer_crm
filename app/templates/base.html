@@ -8,7 +8,12 @@
 </head>
 <body>
     <header>
-        <h1>Auto Dealer CRM</h1>
+        <div class="brand">
+            <a href="/api/v1/dashboard-page" class="brand-link"><h1>Auto Dealer CRM</h1></a>
+            {% if current_user %}
+            <span class="brand-user">{{ current_user.full_name }} · {{ current_user.role.value | replace("_", " ") | title }}</span>
+            {% endif %}
+        </div>
             <nav>
 
             {% if current_user %}
