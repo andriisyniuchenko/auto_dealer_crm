@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     FIRST_ADMIN_EMAIL: str = "admin@demo.com"
     FIRST_ADMIN_PASSWORD: str = "admin123"
-    WEBSITE_API_KEY: str
+    WEBSITE_API_KEY: str = "change-me"
 
     class Config:
         env_file = ".env"
