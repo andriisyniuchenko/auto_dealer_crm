@@ -52,7 +52,7 @@ When a visitor fills out a **"Request More Information"** form on the website, i
 - **Role-based access control** — General Manager, Manager, Salesperson with per-role data visibility
 - **Lead management** — create, search, and filter leads by status or name/phone; track trade-in vehicle info
 - **Shared lead ownership** — up to 2 salespeople per lead with automatic 50/50 deal credit split
-- **Deal tracking** — create and close deals (Sold / Lost / Cancelled) with price validation
+- **Deal tracking** — create and close deals (Sold / Lost / Canceled) with price validation
 - **Activity logging** — log calls, SMS, emails, visits, and notes per lead
 - **Appointment scheduling** — schedule and update customer appointments with status tracking
 - **Lead timeline** — chronological history of all interactions, appointments, and deals per lead
