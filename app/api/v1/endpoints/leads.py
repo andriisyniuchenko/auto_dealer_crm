@@ -1,8 +1,10 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.db.session import get_db
-from app.schemas.lead import LeadCreate, LeadResponse, LeadAssign, LeadUpdate, StaleLeadResponse
+from app.models.lead import Lead
+from app.schemas.lead import LeadCreate, LeadPublicCreate, LeadResponse, LeadAssign, LeadUpdate, StaleLeadResponse
 from app.schemas.pagination import PaginatedResponse
 from app.services.lead_service import create_lead, get_leads, assign_salesperson_to_lead, get_lead_by_id, update_lead, \
     get_stale_leads, remove_salesperson_from_lead
@@ -12,6 +14,28 @@ from app.schemas.timeline import TimelineItemResponse
 from app.services.timeline_service import get_lead_timeline
 
 router = APIRouter(prefix="/leads", tags=["leads"])
+
+
+@router.post("/public")
+def create_public_lead(
+    lead: LeadPublicCreate,
+    db: Session = Depends(get_db),
+    x_api_key: str | None = Header(default=None),
+):
+    if x_api_key != settings.WEBSITE_API_KEY:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    new_lead = Lead(
+        first_name=lead.first_name,
+        last_name=lead.last_name,
+        phone=lead.phone,
+        source=lead.source,
+        interest=lead.interest,
+    )
+    db.add(new_lead)
+    db.commit()
+
+    return {"ok": True}
 
 
 @router.post("/", response_model=LeadResponse)

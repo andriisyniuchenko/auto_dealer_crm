@@ -30,6 +30,22 @@ class LeadCreate(LeadBase):
     pass
 
 
+class LeadPublicCreate(BaseModel):
+    first_name: str
+    last_name: str
+    phone: str
+    source: str = "website"
+    interest: str | None = None
+
+    @field_validator("phone")
+    @classmethod
+    def validate_phone(cls, v: str) -> str:
+        digits = re.sub(r"\D", "", v)
+        if len(digits) < 7 or len(digits) > 15:
+            raise ValueError("Phone must contain between 7 and 15 digits")
+        return v
+
+
 class LeadResponse(LeadBase):
     id: int
 
