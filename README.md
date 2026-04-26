@@ -1,6 +1,6 @@
 # Auto Dealer CRM
 
-A full-stack CRM web application for automotive dealerships — built with FastAPI, PostgreSQL, and server-side rendered HTML templates.
+A full-stack CRM web application for automotive dealerships — built with FastAPI, PostgreSQL, and server-side rendered HTML templates. Part of a two-service microservice ecosystem.
 
 [![CI](https://github.com/andriisyniuchenko/auto_dealer_crm/actions/workflows/ci.yml/badge.svg)](https://github.com/andriisyniuchenko/auto_dealer_crm/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/Python-3.14-blue?logo=python)
@@ -22,6 +22,31 @@ Auto Dealer CRM helps dealership teams track leads, manage deals, schedule appoi
 
 ---
 
+## Microservice Architecture
+
+This CRM is one of two services in the Galaxy Motors ecosystem:
+
+```
+┌─────────────────────────────────┐        ┌─────────────────────────────────┐
+│   Galaxy Motors Website         │        │   Auto Dealer CRM               │
+│   auto-dealer-conversation-     │        │   (this repo)                   │
+│   service                       │        │                                 │
+│                                 │        │                                 │
+│  - Vehicle inventory browsing   │        │  - Lead management              │
+│  - Filter & search 60 cars      │  HTTP  │  - Deal tracking                │
+│  - Lead submission form    ─────┼──POST──▶  - Role-based access            │
+│  - AI chat assistant (WIP)      │  API   │  - Dashboard & stats            │
+│                                 │  Key   │                                 │
+│  localhost:8001                 │        │  localhost:8000                 │
+└─────────────────────────────────┘        └─────────────────────────────────┘
+```
+
+When a visitor fills out a **"Request More Information"** form on the website, it sends a `POST /api/v1/leads/public` request to the CRM with an `X-API-Key` header. The CRM validates the key and creates a new lead with `source="website"` — no JWT required for this endpoint.
+
+**Companion repo:** [auto-dealer-conversation-service](https://github.com/andriisyniuchenko/auto-dealer-conversation-service)
+
+---
+
 ## Features
 
 - **Role-based access control** — General Manager, Manager, Salesperson with per-role data visibility
@@ -35,6 +60,7 @@ Auto Dealer CRM helps dealership teams track leads, manage deals, schedule appoi
 - **Sales stats page** — leaderboard with deal credit split, clickable salesperson profiles, visible to managers only
 - **Salesperson detail page** — per-salesperson breakdown of assigned leads, appointments, and deals
 - **Stale lead alerts** — dashboard highlights leads not contacted in 7+ days or never contacted
+- **Public lead intake API** — `POST /api/v1/leads/public` secured with `X-API-Key`, used by the website to submit leads without a CRM account
 - **JWT authentication** — cookie-based sessions for web UI, Bearer token support for API
 - **Input validation** — email format, phone number (7–15 digits), deal price > 0
 - **Demo data seeding** — one command to populate realistic sample data
@@ -85,13 +111,17 @@ app/
 git clone https://github.com/andriisyniuchenko/auto_dealer_crm.git
 cd auto_dealer_crm
 
-# 2. Start the application (uses .env.docker — already included)
+# 2. Copy env and set your values
+cp .env.example .env
+# Edit .env — set SECRET_KEY and WEBSITE_API_KEY
+
+# 3. Start the application
 make up
 
-# 3. Seed demo data
+# 4. Seed demo data
 make demo
 
-# 4. Open in browser
+# 5. Open in browser
 open http://localhost:8000
 ```
 
@@ -140,7 +170,7 @@ After running `make demo`:
 | Salesperson | marcus.webb@dealer.com | Sales123 |
 | Salesperson | priya.sharma@dealer.com | Sales123 |
 
-> On first `make up` (without demo), a default manager account is created using credentials from `.env.docker` (`FIRST_ADMIN_EMAIL` / `FIRST_ADMIN_PASSWORD`).
+> On first `make up` (without demo), a default manager account is created using credentials from `.env` (`FIRST_ADMIN_EMAIL` / `FIRST_ADMIN_PASSWORD`).
 
 ---
 
@@ -152,6 +182,25 @@ Interactive docs:
 ```
 http://localhost:8000/docs
 ```
+
+### Public Endpoint (no JWT required)
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| `POST` | `/api/v1/leads/public` | `X-API-Key` header | Create a lead from an external service |
+
+**Request body:**
+```json
+{
+  "first_name": "John",
+  "last_name": "Smith",
+  "phone": "555-123-4567",
+  "source": "website",
+  "interest": "2026 Subaru Forester Limited"
+}
+```
+
+**Response:** `{"ok": true}` on success, `403 Forbidden` if the API key is invalid.
 
 ---
 
