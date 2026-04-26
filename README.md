@@ -71,13 +71,13 @@ When a visitor fills out a **"Request More Information"** form on the website, i
 
 | Layer | Technology |
 |---|---|
-| Backend | FastAPI, Python 3.14 |
-| Database | PostgreSQL 16, SQLAlchemy 2.0 |
+| Backend | FastAPI, Python 3.14, Pydantic v2, pydantic-settings |
+| Database | PostgreSQL 16, SQLAlchemy 2.0, psycopg2 |
 | Migrations | Alembic |
-| Auth | JWT (python-jose), bcrypt |
+| Auth | JWT (python-jose), bcrypt, passlib |
 | Frontend | Jinja2 templates, HTML/CSS |
 | Timezone | zoneinfo (stdlib), UTC storage → America/Los_Angeles display |
-| Infrastructure | Docker, Docker Compose |
+| Infrastructure | Docker, Docker Compose, GitHub Actions (CI) |
 | Testing | pytest, httpx (48 tests) |
 
 ---
