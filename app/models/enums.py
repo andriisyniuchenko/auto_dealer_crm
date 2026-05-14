@@ -29,3 +29,8 @@ class DealStatus(str, Enum):
     lost = "lost"
     cancelled = "cancelled"
 
+
+class MessageRole(str, Enum):
+    user = "user"
+    assistant = "assistant"
+

@@ -31,6 +31,8 @@ def create_public_lead(
         phone=lead.phone,
         source=lead.source,
         interest=lead.interest,
+        email=lead.email,
+        notes=lead.notes,
     )
     db.add(new_lead)
     db.commit()

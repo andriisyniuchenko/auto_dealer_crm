@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.api.deps import require_roles
 from app.api.v1.pages.deps import get_current_web_user, templates
 from app.db.session import get_db
+from app.models.chat_session import ChatSession
 from app.models.lead_salesperson import LeadSalesperson
 from app.models.user import User
 from app.schemas.lead import LeadCreate, LeadUpdate
@@ -129,6 +130,12 @@ def lead_detail_page(
         .all()
     )
 
+    chat_session = (
+        db.query(ChatSession)
+        .filter(ChatSession.lead_id == lead.id)
+        .first()
+    )
+
     return templates.TemplateResponse(
         "lead_detail.html",
         {
@@ -139,6 +146,7 @@ def lead_detail_page(
             "assigned_salespeople": assigned_salespeople,
             "all_salespeople": all_salespeople,
             "current_user": current_user,
+            "chat_session": chat_session,
         },
     )
 

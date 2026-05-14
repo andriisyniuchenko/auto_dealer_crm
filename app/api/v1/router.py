@@ -9,6 +9,7 @@ from app.api.v1.endpoints import (
     deals,
     stats,
     dashboard,
+    chat,
 )
 from app.api.v1 import pages
 
@@ -24,4 +25,5 @@ api_router.include_router(calendar.router)
 api_router.include_router(deals.router)
 api_router.include_router(stats.router)
 api_router.include_router(dashboard.router)
+api_router.include_router(chat.router)
 api_router.include_router(pages.router)

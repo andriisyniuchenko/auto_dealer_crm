@@ -136,6 +136,24 @@
         <p class="notes-text">{{ lead.notes or "—" }}</p>
     </div>
 
+    <!-- Chat Session -->
+    {% if chat_session %}
+    <div class="section-card">
+        <p class="section-card-title">Website Chat Conversation</p>
+        <div class="chat-window">
+            {% for msg in chat_session.messages %}
+            <div class="chat-row chat-row-{{ msg.role }}">
+                <div class="chat-bubble chat-bubble-{{ msg.role }}">
+                    <span class="chat-author">{% if msg.role == "assistant" %}Jessica{% else %}{{ lead.first_name }}{% endif %}</span>
+                    <p class="chat-content">{{ msg.content }}</p>
+                    <span class="chat-time">{{ localdt(msg.created_at, "%b %d · %I:%M %p") }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Timeline -->
     <div class="section-card">
         <p class="section-card-title">Timeline</p>

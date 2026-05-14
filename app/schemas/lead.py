@@ -36,6 +36,8 @@ class LeadPublicCreate(BaseModel):
     phone: str
     source: str = "website"
     interest: str | None = None
+    email: EmailStr | None = None
+    notes: str | None = None
 
     @field_validator("phone")
     @classmethod

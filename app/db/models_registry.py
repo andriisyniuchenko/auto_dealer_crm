@@ -5,3 +5,5 @@ from app.models.note import Note
 from app.models.activity import Activity
 from app.models.appointment import Appointment
 from app.models.deal import Deal
+from app.models.chat_session import ChatSession
+from app.models.chat_message import ChatMessage
