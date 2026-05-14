@@ -21,16 +21,17 @@ def create_chat_session(
     db: Session = Depends(get_db),
     _: None = Depends(_verify_api_key),
 ):
-    existing = db.query(ChatSession).filter(ChatSession.session_id == data.session_id).first()
-    if existing:
-        raise HTTPException(status_code=409, detail="Session already exists")
+    session = db.query(ChatSession).filter(ChatSession.session_id == data.session_id).first()
 
-    session = ChatSession(
-        session_id=data.session_id,
-        lead_id=data.lead_id,
-    )
-    db.add(session)
-    db.flush()
+    if session:
+        db.query(ChatMessage).filter(ChatMessage.session_id == session.id).delete()
+    else:
+        session = ChatSession(
+            session_id=data.session_id,
+            lead_id=data.lead_id,
+        )
+        db.add(session)
+        db.flush()
 
     for msg in data.messages:
         db.add(ChatMessage(
