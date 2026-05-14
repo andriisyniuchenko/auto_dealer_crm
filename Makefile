@@ -13,6 +13,7 @@ logs:
 	docker compose logs -f
 
 seed:
+	docker compose exec web alembic upgrade head
 	docker compose exec web python seed_demo_data.py
 
 demo:
