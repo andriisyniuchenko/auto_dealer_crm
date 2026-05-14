@@ -36,8 +36,9 @@ def create_public_lead(
     )
     db.add(new_lead)
     db.commit()
+    db.refresh(new_lead)
 
-    return {"ok": True}
+    return {"ok": True, "lead_id": new_lead.id}
 
 
 @router.post("/", response_model=LeadResponse)
