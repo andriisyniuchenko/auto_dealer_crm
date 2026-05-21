@@ -5,6 +5,8 @@ from app.core.config import settings
 from app.db.session import get_db
 from app.models.lead import Lead
 from app.schemas.lead import LeadCreate, LeadPublicCreate, LeadResponse, LeadAssign, LeadUpdate, StaleLeadResponse
+from app.schemas.appointment import AppointmentPublicCreate
+from app.models.appointment import Appointment
 from app.schemas.pagination import PaginatedResponse
 from app.services.lead_service import create_lead, get_leads, assign_salesperson_to_lead, get_lead_by_id, update_lead, \
     get_stale_leads, remove_salesperson_from_lead
@@ -39,6 +41,34 @@ def create_public_lead(
     db.refresh(new_lead)
 
     return {"ok": True, "lead_id": new_lead.id}
+
+
+@router.post("/public/appointments")
+def create_public_appointment(
+    data: AppointmentPublicCreate,
+    db: Session = Depends(get_db),
+    x_api_key: str | None = Header(default=None),
+):
+    if x_api_key != settings.WEBSITE_API_KEY:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    lead = db.get(Lead, data.lead_id)
+    if not lead:
+        raise HTTPException(status_code=404, detail="Lead not found")
+
+    appointment = Appointment(
+        lead_id=data.lead_id,
+        appointment_at=data.appointment_at,
+    )
+    db.add(appointment)
+
+    if data.notes:
+        lead.notes = (lead.notes + "\n" + data.notes) if lead.notes else data.notes
+
+    db.commit()
+    db.refresh(appointment)
+
+    return {"ok": True, "appointment_id": appointment.id}
 
 
 @router.post("/", response_model=LeadResponse)

@@ -10,6 +10,12 @@ class AppointmentCreate(BaseModel):
     status: AppointmentStatus = AppointmentStatus.scheduled
 
 
+class AppointmentPublicCreate(BaseModel):
+    lead_id: int
+    appointment_at: datetime
+    notes: str | None = None
+
+
 class AppointmentResponse(BaseModel):
     id: int
     lead_id: int

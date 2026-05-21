@@ -13,7 +13,7 @@ class Appointment(Base):
     id = Column(Integer, primary_key=True, index=True)
 
     lead_id = Column(Integer, ForeignKey("leads.id"), nullable=False)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
 
     appointment_at = Column(DateTime, nullable=False)
     status = Column(String, nullable=False, default=AppointmentStatus.scheduled.value)
