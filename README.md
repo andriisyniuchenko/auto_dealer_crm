@@ -35,13 +35,16 @@ This CRM is one of two services in the Galaxy Motors ecosystem:
 │  - Vehicle inventory browsing   │        │  - Lead management              │
 │  - Filter & search 60 cars      │  HTTP  │  - Deal tracking                │
 │  - Lead submission form    ─────┼──POST──▶  - Role-based access            │
-│  - AI chat assistant (WIP)      │  API   │  - Dashboard & stats            │
+│  - AI chat assistant (Jessica)  │  API   │  - Dashboard & stats            │
 │                                 │  Key   │                                 │
 │  localhost:8001                 │        │  localhost:8000                 │
 └─────────────────────────────────┘        └─────────────────────────────────┘
 ```
 
-When a visitor fills out a **"Request More Information"** form on the website, it sends a `POST /api/v1/leads/public` request to the CRM with an `X-API-Key` header. The CRM validates the key and creates a new lead with `source="website"` — no JWT required for this endpoint.
+Two integration points between the services:
+
+1. **Lead intake** — website form and AI chat assistant both submit leads via `POST /api/v1/leads/public` with an `X-API-Key` header. Returns `{"ok": true, "lead_id": 42}` so the conversation service can link the chat session to the correct lead.
+2. **Chat session sync** — after a lead is submitted through the AI assistant, the full conversation is sent to `POST /api/v1/chat/sessions`. The CRM stores it and displays it on the lead detail page as a chat bubble UI (client on left, Jessica on right).
 
 **Companion repo:** [auto-dealer-conversation-service](https://github.com/andriisyniuchenko/auto-dealer-conversation-service)
 
@@ -60,7 +63,8 @@ When a visitor fills out a **"Request More Information"** form on the website, i
 - **Sales stats page** — leaderboard with deal credit split, clickable salesperson profiles, visible to managers only
 - **Salesperson detail page** — per-salesperson breakdown of assigned leads, appointments, and deals
 - **Stale lead alerts** — dashboard highlights leads not contacted in 7+ days or never contacted
-- **Public lead intake API** — `POST /api/v1/leads/public` secured with `X-API-Key`, used by the website to submit leads without a CRM account
+- **Public lead intake API** — `POST /api/v1/leads/public` secured with `X-API-Key`, used by the website and AI chat to submit leads; returns `lead_id` for session linking
+- **AI chat session storage** — stores full AI assistant conversation per lead; displayed as chat bubbles on the lead detail page (client left, Jessica right)
 - **JWT authentication** — cookie-based sessions for web UI, Bearer token support for API
 - **Input validation** — email format, phone number (7–15 digits), deal price > 0
 - **Demo data seeding** — one command to populate realistic sample data
@@ -183,24 +187,40 @@ Interactive docs:
 http://localhost:8000/docs
 ```
 
-### Public Endpoint (no JWT required)
+### Public Endpoints (no JWT required, `X-API-Key` header)
 
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| `POST` | `/api/v1/leads/public` | `X-API-Key` header | Create a lead from an external service |
+| Method | Path | Description |
+|---|---|---|
+| `POST` | `/api/v1/leads/public` | Create a lead from an external service |
+| `POST` | `/api/v1/chat/sessions` | Save or update a chat session with messages |
+| `GET` | `/api/v1/chat/sessions/{session_id}` | Retrieve a chat session with full message history |
 
-**Request body:**
+**Lead request body:**
 ```json
 {
   "first_name": "John",
   "last_name": "Smith",
   "phone": "555-123-4567",
-  "source": "website",
-  "interest": "2026 Subaru Forester Limited"
+  "source": "AI Chat Widget",
+  "interest": "2026 Subaru Forester Limited",
+  "email": "john@example.com",
+  "notes": "Interested in financing"
 }
 ```
+**Lead response:** `{"ok": true, "lead_id": 42}` — the `lead_id` is used by the conversation service to link the chat session to the correct lead.
 
-**Response:** `{"ok": true}` on success, `403 Forbidden` if the API key is invalid.
+**Chat session request body:**
+```json
+{
+  "session_id": "uuid",
+  "lead_id": 42,
+  "messages": [
+    {"role": "user", "content": "I'm looking for an SUV"},
+    {"role": "assistant", "content": "I'd recommend the 2026 Subaru Forester..."}
+  ]
+}
+```
+Chat sessions support upsert — sending again replaces the messages with the latest full conversation.
 
 ---
 
