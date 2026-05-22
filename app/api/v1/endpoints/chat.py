@@ -25,6 +25,8 @@ def create_chat_session(
 
     if session:
         db.query(ChatMessage).filter(ChatMessage.session_id == session.id).delete()
+        if data.lead_id is not None:
+            session.lead_id = data.lead_id
     else:
         session = ChatSession(
             session_id=data.session_id,
