@@ -6,6 +6,7 @@ services:
       POSTGRES_DB: auto_dealer_crm
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    restart: unless-stopped
     ports:
       - "5434:5432"
     volumes:
@@ -31,6 +32,7 @@ services:
       - ALGORITHM=${ALGORITHM}
       - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES}
       - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+    restart: unless-stopped
     ports:
       - "8000:8000"
     command: >

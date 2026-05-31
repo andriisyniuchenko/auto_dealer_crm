@@ -1,5 +1,5 @@
 from collections import defaultdict
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
 from sqlalchemy import func
@@ -17,7 +17,7 @@ STALE_DAYS = 7
 
 def _get_stale_leads(db: Session, current_user: User):
     """Active leads never contacted or not contacted in 7+ days."""
-    threshold = datetime.utcnow() - timedelta(days=STALE_DAYS)
+    threshold = datetime.now(timezone.utc) - timedelta(days=STALE_DAYS)
 
     query = (
         db.query(Lead)
@@ -39,7 +39,7 @@ def _get_stale_leads(db: Session, current_user: User):
         if lead.last_contacted_at is None:
             days = None
         else:
-            days = (datetime.utcnow().date() - lead.last_contacted_at.date()).days
+            days = (datetime.now(timezone.utc).date() - lead.last_contacted_at.date()).days
         result.append({
             "id": lead.id,
             "name": f"{lead.first_name} {lead.last_name}",

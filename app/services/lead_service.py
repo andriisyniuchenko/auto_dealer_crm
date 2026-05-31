@@ -266,19 +266,25 @@ def get_leads_with_salespeople(
 
     leads = query.all()
 
+    if not leads:
+        return []
+
+    lead_ids = [lead.id for lead in leads]
+    rows = (
+        db.query(LeadSalesperson, User)
+        .join(User, User.id == LeadSalesperson.user_id)
+        .filter(LeadSalesperson.lead_id.in_(lead_ids))
+        .all()
+    )
+
+    salespeople_map: dict[int, list[User]] = {lead_id: [] for lead_id in lead_ids}
+    for ls, user in rows:
+        salespeople_map[ls.lead_id].append(user)
+
     result = []
-
     for lead in leads:
-
-        salespeople = (
-            db.query(User)
-            .join(LeadSalesperson, User.id == LeadSalesperson.user_id)
-            .filter(LeadSalesperson.lead_id == lead.id)
-            .all()
-        )
-
+        salespeople = salespeople_map[lead.id]
         ownership = "50/50" if len(salespeople) == 2 else "100%"
-
         result.append({
             "id": lead.id,
             "first_name": lead.first_name,
@@ -308,13 +314,19 @@ def get_inactive_leads_with_salespeople(db: Session, current_user: User):
 
     leads = query.all()
 
-    for lead in leads:
-        salespeople = (
-            db.query(User)
-            .join(LeadSalesperson, User.id == LeadSalesperson.user_id)
-            .filter(LeadSalesperson.lead_id == lead.id)
+    if leads:
+        lead_ids = [lead.id for lead in leads]
+        rows = (
+            db.query(LeadSalesperson, User)
+            .join(User, User.id == LeadSalesperson.user_id)
+            .filter(LeadSalesperson.lead_id.in_(lead_ids))
             .all()
         )
-        lead.salespeople_display = [user.full_name for user in salespeople]
+        salespeople_map: dict[int, list[User]] = {lead_id: [] for lead_id in lead_ids}
+        for ls, user in rows:
+            salespeople_map[ls.lead_id].append(user)
+
+        for lead in leads:
+            lead.salespeople_display = [u.full_name for u in salespeople_map[lead.id]]
 
     return leads
