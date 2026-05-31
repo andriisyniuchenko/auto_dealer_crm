@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 
 from app.db.session import Base
@@ -17,6 +17,7 @@ class Appointment(Base):
 
     appointment_at = Column(DateTime, nullable=False)
     status = Column(String, nullable=False, default=AppointmentStatus.scheduled.value)
+    notes = Column(Text, nullable=True)
 
     created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
 

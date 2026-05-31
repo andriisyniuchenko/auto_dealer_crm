@@ -26,6 +26,7 @@ def create_appointment(
         user_id=current_user.id,
         appointment_at=appointment_data.appointment_at,
         status=appointment_data.status.value,
+        notes=appointment_data.notes,
     )
 
     db.add(new_appointment)

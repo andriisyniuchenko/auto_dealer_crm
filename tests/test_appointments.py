@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta, timezone
 
+from app.core.config import settings
+
 
 def _future_dt():
     return (datetime.now(timezone.utc) + timedelta(days=1)).isoformat()
@@ -133,3 +135,43 @@ def test_manager_can_update_any_appointment(
         headers=auth_headers(manager_token),
     )
     assert response.status_code == 200
+
+
+# ── public booking (website / conversation service) ──────────────────────────
+
+def test_public_appointment_listing_does_not_500(client, salesperson_token, auth_headers, create_lead):
+    """A website-booked appointment has user_id=NULL; listing it must not 500 (C1)."""
+    lead_id = create_lead(salesperson_token)
+
+    booking = client.post(
+        "/api/v1/leads/public/appointments",
+        json={"lead_id": lead_id, "appointment_at": _future_dt()},
+        headers={"X-API-Key": settings.WEBSITE_API_KEY},
+    )
+    assert booking.status_code == 200, booking.json()
+
+    response = client.get(
+        f"/api/v1/leads/{lead_id}/appointments/",
+        headers=auth_headers(salesperson_token),
+    )
+    assert response.status_code == 200, response.json()
+    assert any(item["user_id"] is None for item in response.json()["items"])
+
+
+# ── notes persistence ────────────────────────────────────────────────────────
+
+def test_appointment_notes_persisted(client, salesperson_token, auth_headers, create_lead):
+    """Notes typed on the appointment form must be saved and returned (C2)."""
+    lead_id = create_lead(salesperson_token)
+
+    response = client.post(
+        f"/api/v1/leads/{lead_id}/appointments/",
+        json={
+            "appointment_at": _future_dt(),
+            "status": "scheduled",
+            "notes": "Bring trade-in paperwork",
+        },
+        headers=auth_headers(salesperson_token),
+    )
+    assert response.status_code == 200, response.json()
+    assert response.json()["notes"] == "Bring trade-in paperwork"
