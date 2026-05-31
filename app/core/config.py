@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     FIRST_ADMIN_LAST_NAME: str
     FIRST_ADMIN_EMAIL: str
     FIRST_ADMIN_PASSWORD: str
+    POSTGRES_PASSWORD: str
     WEBSITE_API_KEY: str = "change-me"
     COOKIE_SECURE: bool = False
 
