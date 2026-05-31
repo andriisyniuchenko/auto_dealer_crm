@@ -49,7 +49,9 @@ def create_public_lead(
 
 
 @router.post("/public/appointments")
+@limiter.limit("10/minute")
 def create_public_appointment(
+    request: Request,
     data: AppointmentPublicCreate,
     db: Session = Depends(get_db),
     x_api_key: str | None = Header(default=None),

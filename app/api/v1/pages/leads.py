@@ -186,6 +186,12 @@ def assign_salesperson_page(
             .all()
         )
 
+        chat_session = (
+            db.query(ChatSession)
+            .filter(ChatSession.lead_id == lead.id)
+            .first()
+        )
+
         return templates.TemplateResponse(
             "lead_detail.html",
             {
@@ -195,6 +201,7 @@ def assign_salesperson_page(
                 "salespeople": salespeople,
                 "assigned_salespeople": assigned_salespeople,
                 "all_salespeople": all_salespeople,
+                "chat_session": chat_session,
                 "error_message": e.detail,
                 "current_user": current_user,
             },
@@ -226,6 +233,12 @@ def remove_salesperson_page(
         )
         all_salespeople = db.query(User).filter(User.role == "salesperson").all()
 
+        chat_session = (
+            db.query(ChatSession)
+            .filter(ChatSession.lead_id == lead.id)
+            .first()
+        )
+
         return templates.TemplateResponse(
             "lead_detail.html",
             {
@@ -235,6 +248,7 @@ def remove_salesperson_page(
                 "salespeople": [u.email for u in assigned_salespeople],
                 "assigned_salespeople": assigned_salespeople,
                 "all_salespeople": all_salespeople,
+                "chat_session": chat_session,
                 "error_message": e.detail,
                 "current_user": current_user,
             },

@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     FIRST_ADMIN_EMAIL: str
     FIRST_ADMIN_PASSWORD: str
     POSTGRES_PASSWORD: str
+    ALLOWED_ORIGINS: str = "http://localhost:3000,http://localhost:5173"
     WEBSITE_API_KEY: str = "change-me"
     COOKIE_SECURE: bool = False
 

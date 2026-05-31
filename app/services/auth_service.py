@@ -27,7 +27,7 @@ def create_user(db: Session, user: UserCreate):
     return new_user
 
 def authenticate_user(db: Session, email: str, password: str):
-    user = db.query(User).filter(User.email == email).first()
+    user = db.query(User).filter(User.email == email, User.is_active == True).first()
 
     if not user:
         return None
