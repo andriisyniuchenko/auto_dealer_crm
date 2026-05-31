@@ -30,7 +30,7 @@ def seed():
     db = SessionLocal()
 
     try:
-        if db.query(User).count() > 0:
+        if db.query(Lead).count() > 0:
             print("Demo data already exists, skipping seed.")
             return
 

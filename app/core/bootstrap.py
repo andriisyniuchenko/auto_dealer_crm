@@ -14,8 +14,8 @@ def create_first_admin(db: Session):
 
     if users_count == 0:
         admin = User(
-            first_name="Admin",
-            last_name="",
+            first_name=settings.FIRST_ADMIN_FIRST_NAME,
+            last_name=settings.FIRST_ADMIN_LAST_NAME,
             email=settings.FIRST_ADMIN_EMAIL,
             hashed_password=hash_password(settings.FIRST_ADMIN_PASSWORD),
             role="manager",
