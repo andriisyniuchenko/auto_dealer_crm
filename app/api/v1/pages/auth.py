@@ -3,6 +3,7 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from app.api.v1.pages.deps import get_current_web_user, templates
+from app.core.config import settings
 from app.db.session import get_db
 from app.services.auth_service import login_user
 
@@ -50,6 +51,7 @@ def login_page_post(
         value=f"Bearer {token['access_token']}",
         httponly=True,
         samesite="strict",
+        secure=settings.COOKIE_SECURE,
     )
     return response
 

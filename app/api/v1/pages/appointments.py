@@ -1,4 +1,5 @@
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import RedirectResponse
@@ -73,7 +74,7 @@ def appointment_create(
 
     appointment_datetime = datetime.fromisoformat(
         f"{appointment_date}T{appointment_time}"
-    )
+    ).replace(tzinfo=ZoneInfo("America/Los_Angeles")).astimezone(ZoneInfo("UTC"))
 
     appointment_data = AppointmentCreate(
         appointment_at=appointment_datetime,

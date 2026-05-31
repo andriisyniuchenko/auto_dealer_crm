@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     FIRST_ADMIN_EMAIL: str
     FIRST_ADMIN_PASSWORD: str
     WEBSITE_API_KEY: str = "change-me"
+    COOKIE_SECURE: bool = False
 
     class Config:
         env_file = ".env"

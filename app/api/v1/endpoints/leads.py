@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, Header, HTTPException, Query
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
@@ -16,10 +18,13 @@ from app.schemas.timeline import TimelineItemResponse
 from app.services.timeline_service import get_lead_timeline
 
 router = APIRouter(prefix="/leads", tags=["leads"])
+limiter = Limiter(key_func=get_remote_address)
 
 
 @router.post("/public")
+@limiter.limit("10/minute")
 def create_public_lead(
+    request: Request,
     lead: LeadPublicCreate,
     db: Session = Depends(get_db),
     x_api_key: str | None = Header(default=None),
