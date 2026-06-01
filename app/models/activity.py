@@ -11,8 +11,8 @@ class Activity(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
-    lead_id = Column(Integer, ForeignKey("leads.id"), nullable=False)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    lead_id = Column(Integer, ForeignKey("leads.id"), nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
 
     type = Column(String, nullable=False)
     content = Column(Text, nullable=True)

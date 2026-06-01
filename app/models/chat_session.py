@@ -11,7 +11,7 @@ class ChatSession(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     session_id = Column(String, unique=True, nullable=False, index=True)
-    lead_id = Column(Integer, ForeignKey("leads.id"), nullable=True)
+    lead_id = Column(Integer, ForeignKey("leads.id"), nullable=True, index=True)
     created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
 
     lead = relationship("Lead")

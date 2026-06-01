@@ -12,7 +12,7 @@ class Deal(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
-    lead_id = Column(Integer, ForeignKey("leads.id"), nullable=False)
+    lead_id = Column(Integer, ForeignKey("leads.id"), nullable=False, index=True)
 
     vehicle = Column(String, nullable=False)
     price = Column(Integer, nullable=False)
