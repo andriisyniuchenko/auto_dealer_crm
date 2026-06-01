@@ -20,6 +20,6 @@ class Deal(Base):
     status = Column(String, nullable=False, default=DealStatus.open.value)
 
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    closed_at = Column(DateTime, nullable=True)
+    closed_at = Column(DateTime(timezone=True), nullable=True)
 
     lead = relationship("Lead")
