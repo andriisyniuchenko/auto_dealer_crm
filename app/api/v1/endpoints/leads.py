@@ -1,3 +1,5 @@
+import secrets
+
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
 from slowapi import Limiter
 from slowapi.util import get_remote_address
@@ -29,7 +31,7 @@ def create_public_lead(
     db: Session = Depends(get_db),
     x_api_key: str | None = Header(default=None),
 ):
-    if x_api_key != settings.WEBSITE_API_KEY:
+    if not x_api_key or not secrets.compare_digest(x_api_key, settings.WEBSITE_API_KEY):
         raise HTTPException(status_code=403, detail="Forbidden")
 
     new_lead = Lead(
@@ -56,7 +58,7 @@ def create_public_appointment(
     db: Session = Depends(get_db),
     x_api_key: str | None = Header(default=None),
 ):
-    if x_api_key != settings.WEBSITE_API_KEY:
+    if not x_api_key or not secrets.compare_digest(x_api_key, settings.WEBSITE_API_KEY):
         raise HTTPException(status_code=403, detail="Forbidden")
 
     lead = db.get(Lead, data.lead_id)

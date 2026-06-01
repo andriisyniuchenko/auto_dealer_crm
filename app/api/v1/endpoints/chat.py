@@ -1,3 +1,5 @@
+import secrets
+
 from fastapi import APIRouter, Depends, Header, HTTPException
 from sqlalchemy.orm import Session
 
@@ -11,7 +13,7 @@ router = APIRouter(prefix="/chat", tags=["chat"])
 
 
 def _verify_api_key(x_api_key: str | None = Header(default=None)):
-    if x_api_key != settings.WEBSITE_API_KEY:
+    if not x_api_key or not secrets.compare_digest(x_api_key, settings.WEBSITE_API_KEY):
         raise HTTPException(status_code=403, detail="Forbidden")
 
 
