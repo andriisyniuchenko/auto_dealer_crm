@@ -72,11 +72,17 @@ _MANAGER: set[Permission] = _SALESPERSON | {
 }
 
 
+_FINANCE_MANAGER: set[Permission] = _MANAGER | set()
+
+
+_GENERAL_MANAGER: set[Permission] = _MANAGER | set()
+
+
 ROLE_PERMISSIONS: dict[UserRole, set[Permission]] = {
-    UserRole.salesperson: _SALESPERSON,
-    UserRole.finance_manager: set(_MANAGER),
-    UserRole.manager: _MANAGER,
-    UserRole.general_manager: _MANAGER,
+    UserRole.salesperson: set(_SALESPERSON),
+    UserRole.finance_manager: set(_FINANCE_MANAGER),
+    UserRole.manager: set(_MANAGER),
+    UserRole.general_manager: set(_GENERAL_MANAGER),
 }
 
 
