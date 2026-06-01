@@ -1,3 +1,5 @@
+from datetime import timezone
+
 from sqlalchemy.orm import Session
 
 from app.models.activity import Activity
@@ -64,6 +66,12 @@ def get_lead_timeline(db: Session, lead_id: int, current_user: User):
                 "user_id": None,
             })
 
-    timeline.sort(key=lambda x: x["timestamp"], reverse=True)
+    def _ts_key(item):
+        ts = item["timestamp"]
+        if ts.tzinfo is None:
+            ts = ts.replace(tzinfo=timezone.utc)
+        return ts
+
+    timeline.sort(key=_ts_key, reverse=True)
 
     return timeline
