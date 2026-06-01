@@ -66,4 +66,7 @@ def get_current_web_user(
     if not user:
         return redirect_to_login()
 
+    if not user.is_active:
+        return redirect_to_login()
+
     return user

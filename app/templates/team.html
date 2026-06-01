@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Team{% endblock %}
+
+{% block content %}
+<h2>Team</h2>
+
+{% if error %}
+<div style="background:#fee2e2; color:#991b1b; padding:10px 14px; border-radius:6px; margin:12px 0;">
+    {{ error }}
+</div>
+{% endif %}
+
+<h3 style="margin-top: 20px;">Active ({{ active_users | length }})</h3>
+{% if active_users %}
+<table class="crm-table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for u in active_users %}
+        <tr>
+            <td><a href="/api/v1/salesperson-page/{{ u.id }}">{{ u.full_name }}</a></td>
+            <td>{{ u.role.value | replace("_", " ") | title }}</td>
+            <td>{{ u.email }}</td>
+            <td><span class="status-badge status-active">Active</span></td>
+            <td>
+                {% if u.can_manage %}
+                <form method="post" action="/api/v1/team-page/{{ u.id }}/toggle-active" style="display:inline;">
+                    <button type="submit" class="btn btn-danger btn-sm">Deactivate</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="text-muted">No active users.</p>
+{% endif %}
+
+<h3 style="margin-top: 28px;">Inactive ({{ inactive_users | length }})</h3>
+{% if inactive_users %}
+<table class="crm-table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for u in inactive_users %}
+        <tr>
+            <td><a href="/api/v1/salesperson-page/{{ u.id }}">{{ u.full_name }}</a></td>
+            <td>{{ u.role.value | replace("_", " ") | title }}</td>
+            <td>{{ u.email }}</td>
+            <td><span class="status-badge status-inactive">Inactive</span></td>
+            <td>
+                {% if u.can_manage %}
+                <form method="post" action="/api/v1/team-page/{{ u.id }}/toggle-active" style="display:inline;">
+                    <button type="submit" class="btn btn-secondary btn-sm">Activate</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="text-muted">No inactive users.</p>
+{% endif %}
+
+{% endblock %}

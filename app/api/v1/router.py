@@ -10,6 +10,7 @@ from app.api.v1.endpoints import (
     stats,
     dashboard,
     chat,
+    users,
 )
 from app.api.v1 import pages
 
@@ -26,4 +27,5 @@ api_router.include_router(deals.router)
 api_router.include_router(stats.router)
 api_router.include_router(dashboard.router)
 api_router.include_router(chat.router)
+api_router.include_router(users.router)
 api_router.include_router(pages.router)

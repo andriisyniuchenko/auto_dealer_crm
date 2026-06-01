@@ -30,10 +30,15 @@ class UserLogin(BaseModel):
 
 class UserResponse(UserBase):
     id: int
+    full_name: str
     is_active: bool
 
     class Config:
         from_attributes = True
+
+
+class UserStatusUpdate(BaseModel):
+    is_active: bool
 
 
 class Token(BaseModel):
