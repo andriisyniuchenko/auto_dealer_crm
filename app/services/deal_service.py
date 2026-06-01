@@ -97,8 +97,12 @@ def get_deals(db: Session, current_user: User, page: int = 1, limit: int = 20):
     total = query.count()
     items = query.offset((page - 1) * limit).limit(limit).all()
 
+    lead_ids = {deal.lead_id for deal in items}
+    leads = db.query(Lead).filter(Lead.id.in_(lead_ids)).all()
+    leads_by_id = {lead.id: lead for lead in leads}
+
     for deal in items:
-        lead = db.query(Lead).filter(Lead.id == deal.lead_id).first()
+        lead = leads_by_id.get(deal.lead_id)
         deal.lead_name = f"{lead.first_name} {lead.last_name}" if lead else f"Lead #{deal.lead_id}"
 
     return {
