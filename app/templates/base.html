@@ -23,8 +23,10 @@
                 <a href="/api/v1/leads-page/create">Create Lead</a>
                 <a href="/api/v1/appointments-page">Appointments</a>
                 <a href="/api/v1/deals-page">Deals</a>
-                {% if current_user.role.value in ["manager", "general_manager"] %}
+                {% if has_perm(current_user, "stats:view") %}
                 <a href="/api/v1/stats-page">Sales Stats</a>
+                {% endif %}
+                {% if has_perm(current_user, "team:manage") %}
                 <a href="/api/v1/team-page">Team</a>
                 {% endif %}
                 <a href="/api/v1/logout">Logout</a>

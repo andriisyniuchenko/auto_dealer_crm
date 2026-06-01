@@ -3,6 +3,7 @@ from zoneinfo import ZoneInfo
 
 from sqlalchemy.orm import Session
 
+from app.core.permissions import Permission, has_permission
 from app.models.appointment import Appointment
 from app.models.user import User
 from app.schemas.appointment import AppointmentCreate
@@ -78,7 +79,7 @@ def update_appointment(
     if not appointment:
         raise HTTPException(status_code=404, detail="Appointment not found")
 
-    is_manager = current_user.role.value in ["manager", "general_manager"]
+    is_manager = has_permission(current_user, Permission.APPOINTMENT_VIEW_ALL)
     is_assigned = (
         db.query(LeadSalesperson)
         .filter(
@@ -108,7 +109,7 @@ def get_today_appointments(db: Session, current_user: User):
     start = datetime.combine(today, time.min, tz)
     end = datetime.combine(today, time.max, tz)
 
-    if current_user.role.value in ["manager", "general_manager"]:
+    if has_permission(current_user, Permission.APPOINTMENT_VIEW_ALL):
         return (
             db.query(Appointment)
             .filter(
@@ -133,7 +134,7 @@ def get_today_appointments(db: Session, current_user: User):
 
 
 def get_all_appointments(db: Session, current_user: User):
-    if current_user.role.value in ["manager", "general_manager"]:
+    if has_permission(current_user, Permission.APPOINTMENT_VIEW_ALL):
         return (
             db.query(Appointment)
             .order_by(Appointment.appointment_at.asc())

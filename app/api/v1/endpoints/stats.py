@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from app.api.deps import require_roles
+from app.api.deps import require_permission
+from app.core.permissions import Permission
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.stats import SalesStatResponse
@@ -13,6 +14,6 @@ router = APIRouter(prefix="/stats", tags=["stats"])
 @router.get("/sales", response_model=list[SalesStatResponse])
 def read_sales_stats(
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_roles("manager", "general_manager")),
+    current_user: User = Depends(require_permission(Permission.STATS_VIEW)),
 ):
     return get_sales_stats(db)

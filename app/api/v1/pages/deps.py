@@ -8,6 +8,7 @@ from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
+from app.core.permissions import has_permission
 from app.db.session import get_db
 from app.models.user import User
 
@@ -25,6 +26,7 @@ def _localdt(dt: datetime, fmt: str) -> str:
 
 templates = Jinja2Templates(directory="app/templates")
 templates.env.globals["localdt"] = _localdt
+templates.env.globals["has_perm"] = has_permission
 
 
 def get_current_web_user(

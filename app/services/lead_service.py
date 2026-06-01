@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 
+from app.core.permissions import Permission, has_permission
 from app.models.lead import Lead
 from app.models.lead_salesperson import LeadSalesperson
 from app.schemas.lead import LeadCreate, LeadUpdate
@@ -47,7 +48,7 @@ def get_leads(
     status: str | None = None,
     search: str | None = None,
 ):
-    if current_user.role.value in ["manager", "general_manager"]:
+    if has_permission(current_user, Permission.LEAD_VIEW_ALL):
         query = db.query(Lead).order_by(Lead.created_at.desc())
     else:
         query = (
@@ -128,7 +129,7 @@ def get_lead_by_id(db: Session, lead_id: int, current_user: User):
     if not lead:
         raise HTTPException(status_code=404, detail="Lead not found")
 
-    if current_user.role.value in ["manager", "general_manager"]:
+    if has_permission(current_user, Permission.LEAD_VIEW_ALL):
         return lead
 
     lead_link = (
@@ -161,7 +162,7 @@ def update_lead(db: Session, lead_id: int, lead_data: LeadUpdate, current_user: 
 
 
 def get_stale_leads(db: Session, current_user: User):
-    if current_user.role.value in ["manager", "general_manager"]:
+    if has_permission(current_user, Permission.LEAD_VIEW_ALL):
         leads = (
             db.query(Lead)
             .order_by(Lead.last_contacted_at.asc(), Lead.created_at.desc())
@@ -243,7 +244,7 @@ def get_leads_with_salespeople(
     search: str | None = None,
     status: str | None = None,
 ):
-    if current_user.role.value in ["manager", "general_manager"]:
+    if has_permission(current_user, Permission.LEAD_VIEW_ALL):
         query = db.query(Lead).order_by(Lead.created_at.desc())
     else:
         query = (
@@ -306,7 +307,7 @@ def get_inactive_leads_with_salespeople(db: Session, current_user: User):
         .order_by(Lead.id.desc())
     )
 
-    if current_user.role.value not in ["manager", "general_manager"]:
+    if not has_permission(current_user, Permission.LEAD_VIEW_ALL):
         query = (
             query.join(LeadSalesperson, Lead.id == LeadSalesperson.lead_id)
             .filter(LeadSalesperson.user_id == current_user.id)

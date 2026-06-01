@@ -5,6 +5,7 @@ from zoneinfo import ZoneInfo
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
+from app.core.permissions import Permission, has_permission
 from app.models.deal import Deal
 from app.models.enums import LeadStatus
 from app.models.lead import Lead
@@ -27,7 +28,7 @@ def _get_stale_leads(db: Session, current_user: User):
         )
     )
 
-    if current_user.role.value not in ["manager", "general_manager"]:
+    if not has_permission(current_user, Permission.LEAD_VIEW_ALL):
         query = query.join(LeadSalesperson, Lead.id == LeadSalesperson.lead_id).filter(
             LeadSalesperson.user_id == current_user.id
         )
@@ -82,7 +83,7 @@ def _get_top_salespeople(db: Session):
 
 def _get_revenue(db: Session, current_user: User):
     """Total revenue from sold deals."""
-    if current_user.role.value in ["manager", "general_manager"]:
+    if has_permission(current_user, Permission.DEAL_VIEW_ALL):
         result = (
             db.query(func.sum(Deal.price))
             .filter(Deal.status == "sold")
@@ -107,7 +108,7 @@ def get_dashboard_data(db: Session, current_user: User):
     tz = ZoneInfo("America/Los_Angeles")
     now = datetime.now(tz)
 
-    is_manager = current_user.role.value in ["manager", "general_manager"]
+    is_manager = has_permission(current_user, Permission.DASHBOARD_VIEW_ALL)
 
     if is_manager:
         active_leads = (

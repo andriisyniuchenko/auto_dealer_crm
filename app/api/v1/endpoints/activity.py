@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from app.api.deps import require_roles
+from app.api.deps import require_permission
+from app.core.permissions import Permission
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.activity import ActivityCreate, ActivityResponse
@@ -15,7 +16,7 @@ def create_lead_activity(
     lead_id: int,
     activity_data: ActivityCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_roles("manager", "general_manager", "salesperson")),
+    current_user: User = Depends(require_permission(Permission.ACTIVITY_CREATE)),
 ):
     return create_activity(db, lead_id, activity_data, current_user)
 
@@ -24,6 +25,6 @@ def create_lead_activity(
 def read_lead_activities(
     lead_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_roles("manager", "general_manager", "salesperson")),
+    current_user: User = Depends(require_permission(Permission.ACTIVITY_VIEW)),
 ):
     return get_activities_by_lead(db, lead_id, current_user)

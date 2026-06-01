@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
-from app.api.deps import require_roles
+from app.api.deps import require_permission
+from app.core.permissions import Permission
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.appointment import AppointmentCreate, AppointmentResponse, AppointmentUpdate
@@ -16,7 +17,7 @@ def create_lead_appointment(
     lead_id: int,
     appointment_data: AppointmentCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_roles("manager", "general_manager", "salesperson")),
+    current_user: User = Depends(require_permission(Permission.APPOINTMENT_MANAGE)),
 ):
     return create_appointment(db, lead_id, appointment_data, current_user)
 
@@ -27,7 +28,7 @@ def read_lead_appointments(
     page: int = Query(1, ge=1),
     limit: int = Query(20, ge=1, le=100),
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_roles("manager", "general_manager", "salesperson")),
+    current_user: User = Depends(require_permission(Permission.APPOINTMENT_VIEW)),
 ):
     return get_appointments_by_lead(db, lead_id, current_user, page=page, limit=limit)
 
@@ -38,6 +39,6 @@ def update_lead_appointment(
     appointment_id: int,
     appointment_data: AppointmentUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_roles("manager", "general_manager", "salesperson")),
+    current_user: User = Depends(require_permission(Permission.APPOINTMENT_MANAGE)),
 ):
     return update_appointment(db, lead_id, appointment_id, appointment_data, current_user)

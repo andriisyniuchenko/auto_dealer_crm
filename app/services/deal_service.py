@@ -1,6 +1,7 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
+from app.core.permissions import Permission, has_permission
 from app.models.deal import Deal
 from app.models.lead import Lead
 from app.models.lead_salesperson import LeadSalesperson
@@ -16,7 +17,7 @@ def create_deal(db: Session, deal: DealCreate, current_user: User):
     if not lead:
         raise HTTPException(status_code=404, detail="Lead not found")
 
-    if current_user.role.value not in ["manager", "general_manager"]:
+    if not has_permission(current_user, Permission.DEAL_VIEW_ALL):
         link = (
             db.query(LeadSalesperson)
             .filter(
@@ -50,7 +51,7 @@ def close_deal(db: Session, deal_id: int, deal_data: DealClose, current_user: Us
     if not deal:
         raise HTTPException(status_code=404, detail="Deal not found")
 
-    if current_user.role.value not in ["manager", "general_manager"]:
+    if not has_permission(current_user, Permission.DEAL_VIEW_ALL):
         link = (
             db.query(LeadSalesperson)
             .filter(
@@ -85,7 +86,7 @@ def close_deal(db: Session, deal_id: int, deal_data: DealClose, current_user: Us
 
 
 def get_deals(db: Session, current_user: User, page: int = 1, limit: int = 20):
-    if current_user.role.value in ["manager", "general_manager"]:
+    if has_permission(current_user, Permission.DEAL_VIEW_ALL):
         query = db.query(Deal)
     else:
         query = (
@@ -120,7 +121,7 @@ def get_deal_by_id(db: Session, deal_id: int, current_user: User):
     if not deal:
         raise HTTPException(status_code=404, detail="Deal not found")
 
-    if current_user.role.value in ["manager", "general_manager"]:
+    if has_permission(current_user, Permission.DEAL_VIEW_ALL):
         return deal
 
     link = (

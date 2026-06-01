@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
-from app.api.deps import require_roles
+from app.api.deps import require_permission
+from app.core.permissions import Permission
 from app.api.v1.pages.deps import get_current_web_user, templates
 from app.db.session import get_db
 from app.models.chat_session import ChatSession
@@ -157,7 +158,7 @@ def assign_salesperson_page(
     lead_id: int,
     salesperson_id: int = Form(...),
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_roles("manager", "general_manager")),
+    current_user: User = Depends(require_permission(Permission.LEAD_ASSIGN)),
 ):
     try:
         assign_salesperson_to_lead(db, lead_id, salesperson_id)
@@ -215,7 +216,7 @@ def remove_salesperson_page(
     lead_id: int,
     salesperson_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_roles("manager", "general_manager")),
+    current_user: User = Depends(require_permission(Permission.LEAD_ASSIGN)),
 ):
     try:
         remove_salesperson_from_lead(db, lead_id, salesperson_id)

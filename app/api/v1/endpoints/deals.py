@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from app.db.session import get_db
-from app.api.deps import require_roles
+from app.api.deps import require_permission
+from app.core.permissions import Permission
 from app.models.user import User
 from app.schemas.deal import DealCreate, DealResponse, DealClose
 from app.schemas.pagination import PaginatedResponse
@@ -16,7 +17,7 @@ router = APIRouter(
 def create_deal_endpoint(
     deal: DealCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_roles("salesperson", "manager", "general_manager")),
+    current_user: User = Depends(require_permission(Permission.DEAL_CREATE)),
 ):
     return create_deal(db, deal, current_user)
 
@@ -26,7 +27,7 @@ def close_deal_endpoint(
     deal_id: int,
     deal_data: DealClose,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_roles("salesperson", "manager", "general_manager")),
+    current_user: User = Depends(require_permission(Permission.DEAL_CLOSE)),
 ):
     return close_deal(db, deal_id, deal_data, current_user)
 
@@ -36,7 +37,7 @@ def get_my_deals(
     page: int = Query(1, ge=1),
     limit: int = Query(20, ge=1, le=100),
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_roles("salesperson", "manager", "general_manager")),
+    current_user: User = Depends(require_permission(Permission.DEAL_VIEW)),
 ):
     return get_deals(db, current_user, page=page, limit=limit)
 
@@ -45,6 +46,6 @@ def get_my_deals(
 def get_deal_details(
     deal_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_roles("salesperson", "manager", "general_manager")),
+    current_user: User = Depends(require_permission(Permission.DEAL_VIEW)),
 ):
     return get_deal_by_id(db, deal_id, current_user)

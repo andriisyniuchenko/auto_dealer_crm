@@ -73,7 +73,7 @@
                 {% for sp in assigned_salespeople %}
                 <div class="sp-item">
                     <span class="sp-email">{{ sp.full_name }}</span>
-                    {% if current_user.role in ["manager", "general_manager"] %}
+                    {% if has_perm(current_user, "lead:assign") %}
                     <form method="post" action="/api/v1/leads-page/{{ lead.id }}/remove-salesperson/{{ sp.id }}" class="sp-remove-form">
                         <button type="submit" class="sp-trash-btn" title="Remove">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -92,7 +92,7 @@
                 <p class="text-muted">No salespeople assigned.</p>
             {% endif %}
 
-            {% if current_user.role in ["manager", "general_manager"] %}
+            {% if has_perm(current_user, "lead:assign") %}
             <div class="sp-add-section">
                 <p class="subsection-label">Assign Salesperson</p>
                 <form method="post" action="/api/v1/leads-page/{{ lead.id }}/assign-salesperson" class="sp-add-form">

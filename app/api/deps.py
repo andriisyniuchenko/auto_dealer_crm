@@ -4,6 +4,7 @@ from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
+from app.core.permissions import Permission, has_permission
 from app.db.session import get_db
 from app.models.user import User
 
@@ -62,13 +63,13 @@ def get_current_active_user(current_user: User = Depends(get_current_user)):
     return current_user
 
 
-def require_roles(*allowed_roles: str):
-    def role_checker(current_user: User = Depends(get_current_active_user)):
-        if current_user.role.value not in allowed_roles:
+def require_permission(permission: Permission):
+    def permission_checker(current_user: User = Depends(get_current_active_user)):
+        if not has_permission(current_user, permission):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Not enough permissions",
             )
         return current_user
 
-    return role_checker
+    return permission_checker

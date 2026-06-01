@@ -3,6 +3,7 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from app.api.v1.pages.deps import get_current_web_user, templates
+from app.core.permissions import Permission, has_permission
 from app.db.session import get_db
 from app.models.appointment import Appointment
 from app.models.deal import Deal
@@ -23,7 +24,7 @@ def salesperson_detail_page(
     if isinstance(current_user, RedirectResponse):
         return current_user
 
-    if current_user.role.value not in ("manager", "general_manager"):
+    if not has_permission(current_user, Permission.USER_VIEW):
         return RedirectResponse(url="/api/v1/dashboard-page", status_code=303)
 
     salesperson = db.query(User).filter(User.id == user_id).first()
