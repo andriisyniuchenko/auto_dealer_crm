@@ -60,7 +60,7 @@ def _get_top_salespeople(db: Session):
         .join(User, LeadSalesperson.user_id == User.id)
         .filter(
             Deal.status == "sold",
-            (Deal.closed_at >= month_start) | (Deal.closed_at == None),
+            Deal.closed_at >= month_start,
         )
         .all()
     )
