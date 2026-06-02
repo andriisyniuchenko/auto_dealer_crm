@@ -55,7 +55,7 @@ Two integration points between the services:
 - **Role-based access control** — General Manager, Manager, Salesperson with per-role data visibility
 - **Lead management** — create, search, and filter leads by status or name/phone; track trade-in vehicle info
 - **Shared lead ownership** — up to 2 salespeople per lead with automatic 50/50 deal credit split
-- **Deal tracking** — create and close deals (Sold / Lost / Canceled) with price validation
+- **Deal tracking** — create and close deals (Sold / Lost / Cancelled) with price validation
 - **Activity logging** — log calls, SMS, emails, visits, and notes per lead
 - **Appointment scheduling** — schedule and update customer appointments with status tracking
 - **Lead timeline** — chronological history of all interactions, appointments, and deals per lead
@@ -82,7 +82,7 @@ Two integration points between the services:
 | Frontend | Jinja2 templates, HTML/CSS |
 | Timezone | zoneinfo (stdlib), UTC storage → America/Los_Angeles display |
 | Infrastructure | Docker, Docker Compose, GitHub Actions (CI) |
-| Testing | pytest, httpx (48 tests) |
+| Testing | pytest, httpx (50 tests) |
 
 ---
 
@@ -133,7 +133,7 @@ open http://localhost:8000
 
 ## Local Development (without Docker)
 
-**Prerequisites:** Python 3.12+, PostgreSQL running locally
+**Prerequisites:** Python 3.14, PostgreSQL running locally
 
 ```bash
 python -m venv venv
@@ -226,7 +226,7 @@ Chat sessions support upsert — sending again replaces the messages with the la
 
 ## Running Tests
 
-The project has 48 tests across 4 test modules (auth, leads, appointments, deals), using an in-memory SQLite database — no Docker required.
+The project has 50 tests across 4 test modules (auth, leads, appointments, deals), using an in-memory SQLite database — no Docker required.
 
 ```bash
 pytest tests/
