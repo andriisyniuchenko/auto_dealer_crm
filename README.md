@@ -10,11 +10,6 @@ A full-stack CRM web application for automotive dealerships — built with FastA
 
 ---
 
-## Demo
-
-📹 [Watch demo video](https://youtu.be/8uaZtSdtifc)
-
----
 
 ## Overview
 
